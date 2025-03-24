@@ -1,0 +1,294 @@
+#---
+- hosts: all
+  become: true
+  tasks:
+
+  ##
+  ##    Try loading the credentials.yml file
+  ##    if workshopuser_username is not defined
+  ##
+
+  - name: "rhel10-prep : loading credentials"
+    include_vars:
+      file: "../config/credentials.yml"
+    when: 
+      - workshop_vars.set_student_password 
+      - workshop_vars.student_password is undefined
+      - rhel10workshop_student_password is undefined
+
+
+
+- hosts: myBastion
+  become: true
+  tasks:
+
+  - name: "rhel10-prep : TEMPLATE /etc/motd (incomplete)"
+    template:
+      src: motd-incomplete.j2
+      dest: /etc/motd
+      owner: root
+      group: root
+      mode: 0644  
+
+
+
+- hosts: myNodes
+  become: true
+  tasks:
+
+  - name: "rhel10-prep : TEMPLATE /etc/motd"
+    template:
+      src: motd-generic.j2
+      dest: /etc/motd
+      owner: root
+      group: root
+      mode: 0644  
+
+
+
+- hosts: myBastion,myNodes
+  become: true
+  tasks:
+
+  - name: "rhel10-prep : PACKAGE remove UN-WANTED packages"
+    package: name=insights-client state=absent
+    register: result
+    retries: 10
+    until: result is succeeded
+    delay: 5
+
+  - name: "rhel10-prep : PACKAGE install WANTED packages"
+    package: name=tmux,policycoreutils-python-utils state=installed
+    register: result
+    retries: 10
+    until: result is succeeded
+    delay: 5
+
+  - name: "rhel10-prep : FILE remove UN-WANTED motd messages"
+    file:
+      path: /etc/motd.d/cockpit
+      state: absent
+
+  - name: "rhel10-prep : SERVICE disable and stop unwanted services"
+    service: 
+      name="{{ item.name }}"
+      state=stopped
+      enabled=no
+    with_items:
+      - {name: 'rhsmcertd'}
+
+  - name: "rhel10-prep : CMD disable package plugins for subscription-manager"
+    shell: 
+      cmd: |          
+        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/subscription-manager.conf
+        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/product-id.conf
+                  
+  - name: "rhel10-prep : create and/or reset admin user"
+    vars:
+      t_passwd: "{{ workshop_vars.admin_password | default(rhel10workshop_admin_password) }}" 
+    user: 
+      name:     "{{ workshop_vars.admin_name  }}" 
+      password: "{{ t_passwd | password_hash('sha512') }}"
+      state:    present
+    when:
+      - workshop_vars.set_admin_password
+
+  - name: "rhel10-prep : create and/or reset student user"
+    vars:
+      t_passwd: "{{ workshop_vars.student_password | default(rhel10workshop_student_password) }}" 
+    user: 
+      name:     "{{ workshop_vars.student_name  }}" 
+      password: "{{ t_passwd | password_hash('sha512') }}"
+      state:    present
+    when:
+      - workshop_vars.set_student_password
+
+  - name: "rhel10-prep : create student group"
+    group: 
+      name:     "{{ workshop_vars.student_name  }}" 
+      state:    present
+
+  - name: "rhel10-prep : USER modification"
+    user: name="{{ workshop_vars.student_name }}" groups="wheel"
+
+  - name: "rhel10-prep : Sudo Configuration"
+    vars:
+      t_studentName: "{{ workshop_vars.student_name }}"
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: 0600
+    with_items:
+      - {src: 'sudoers.j2', dest: '/etc/sudoers.d/rhel10-workshop'}
+      - {src: 'sudoers-student.j2', dest: '/etc/sudoers.d/{{ workshop_vars.student_name }}'}
+
+  - name: "rhel10-prep : check ssh directory permissions"
+    file:
+      path: ~{{ item }}/.ssh
+      mode: "0700"
+      owner: "{{ item }}"
+      group: "{{ item }}"
+      state: directory
+    with_items:
+      - "root"
+      - "{{ workshop_vars.student_name }}"
+
+  - name: "rhel10-prep : check ssh known_hosts  permissions"
+    file:
+      path: "~{{ item }}/.ssh/known_hosts"
+      mode: "0700"
+      owner: "{{ item }}"
+      group: "{{ item }}"
+      state: touch
+    with_items:
+      - "root"
+      - "{{ workshop_vars.student_name }}"
+
+  - name: "rhel10-prep : clean up known_hosts for root"
+    vars:
+      p_file: "~root/.ssh/known_hosts"
+    shell:
+      cmd: |
+        ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}
+        ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_extras.network_fqdn }}
+    with_items:
+      - "{{ groups['myBastion'] }}"
+      - "{{ groups['myNodes'] }}"
+    ignore_errors: yes
+
+  - name: "rhel10-prep: scan and add ssh keys to known_hosts for root"
+    vars:
+      p_file: "~root/.ssh/known_hosts"
+    shell:
+      cmd: |
+        ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }} >> {{ p_file }}
+        ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_extras.network_fqdn }} >> {{ p_file }}
+    with_items:
+      - "{{ groups['myBastion'] }}"
+      - "{{ groups['myNodes'] }}"
+    ignore_errors: yes
+
+  - name: "rhel10-prep : clean up known_hosts for {{ workshop_vars.student_name }}"
+    vars:
+      p_file: "~{{ workshop_vars.student_name }}/.ssh/known_hosts"
+    shell:
+      cmd: |
+        ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}
+        ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_extras.network_fqdn }}
+    with_items:
+      - "{{ groups['myBastion'] }}"
+      - "{{ groups['myNodes'] }}"
+    ignore_errors: yes
+    become: yes
+    become_user: "{{ workshop_vars.student_name }}"
+
+  - name: "rhel10-prep: scan and add ssh keys to known_hosts for {{ workshop_vars.student_name }}"
+    vars:
+      p_file: "~{{ workshop_vars.student_name }}/.ssh/known_hosts"
+    shell:
+      cmd: |
+        ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }} >> {{ p_file }}
+        ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_extras.network_fqdn }} >> {{ p_file }}
+    with_items:
+      - "{{ groups['myBastion'] }}"
+      - "{{ groups['myNodes'] }}"
+    ignore_errors: yes
+    become: yes
+    become_user: "{{ workshop_vars.student_name }}"
+
+  - name: "rhel10-prep : workshop file installs"
+    template:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+      owner: root
+      group: root
+      mode: "{{ item.mode }}"
+    with_items:
+      - {mode: '0755', src: 'workshop-finish-exercise.j2', dest: '/usr/local/bin/workshop-finish-exercise.sh'}
+      - {mode: '0755', src: 'workshop-tmux.j2',            dest: '/usr/local/bin/workshop-tmux.sh'}
+ 
+
+ 
+
+
+- hosts: myBastion
+  become: true
+  tasks:
+
+
+  ##
+  ## In RHEL-9, thanks to separation of ansible-core, openssh_keypair is no longer
+  ##            part of ansible-core.  So, we revert to shell commands.
+  ##
+
+  - name: "rhel10-prep : test for root ssh key on bastion"
+    stat: 
+      path: /root/.ssh/id_rsa
+    register: root_sshkey
+
+  - name: "rhel10-prep : create ssh key for root on bastion"
+    shell: 
+      cmd: |          
+        ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+    when: not root_sshkey.stat.exists
+
+  - name: "rhel10-prep : save local temp copy of root ssh key from bastion"
+    fetch:
+      src:  "/root/.ssh/id_rsa.pub"
+      dest: "../config/root_sshkey.temp"
+      flat: true
+
+  - name: "rhel10-prep : test for {{ workshop_vars.student_name }} ssh key"
+    become: true
+    become_user: "{{ workshop_vars.student_name }}"
+    stat: 
+      path: "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa"
+    register: student_sshkey
+
+  - name: "rhel10-prep : create ssh key for {{ workshop_vars.student_name }}"
+    become: true
+    become_user: "{{ workshop_vars.student_name }}"
+    shell: 
+      cmd: |          
+        ssh-keygen -t rsa -N "" -f "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa"
+    when: not student_sshkey.stat.exists
+
+  - name: "rhel10-prep : save temp copy of {{ workshop_vars.student_name }} ssh key"
+    become: true
+    become_user: "{{ workshop_vars.student_name }}"
+    fetch:
+      src:  "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa.pub"
+      dest: "../config/{{ workshop_vars.student_name }}_sshkey.temp"
+      flat: true
+
+
+
+
+- hosts: myNodes
+  become: true
+  tasks:
+
+  - name: "rhel10-prep : install authorized_keys for root"
+    vars:
+      t_key:     "{{ lookup('file','../config/{{item.user}}_sshkey.temp') }}"
+    lineinfile:
+      create:  true
+      owner:   "{{ item.user }}"
+      group:   "{{ item.user }}"
+      path:    "{{ item.path }}"
+      line:    "{{ t_key }}"
+      mode:    "0600"
+    with_items:
+      - { user: 'root', path: '/root/.ssh/authorized_keys' }
+      - { user: '{{ workshop_vars.student_name }}', path: '/home/{{ workshop_vars.student_name }}/.ssh/authorized_keys' }
+
+
+  - name: "rhel10-prep : remove local temp copy of pub ssh key"
+    delegate_to: localhost
+    file: path="../config/{{ item }}_sshkey.temp" state=absent
+    with_items:
+      - "root"
+      - "{{ workshop_vars.student_name }}"
+
