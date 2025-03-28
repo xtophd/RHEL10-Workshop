@@ -22,8 +22,8 @@ all:
     workshop_vars:
 
       clustername:          "{{ lookup('file','.././config/gpte-guid.txt') }}"
-      network_basedomain:   "internal"
-      network_fqdn:         "{{ lookup('file','.././config/gpte-guid.txt') }}.internal"
+      network_basedomain:   "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
+      network_fqdn:         "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
       
       set_student_password: True
       set_admin_password:   False
@@ -36,7 +36,7 @@ all:
       ##    !!! LEAVE PASSWORDS COMMENTED OUT !!!
       ##
 
-      student_name:         "student"
+      student_name:         "{{ lookup('file','.././config/gpte-student.txt') }}"
       student_password:     "{{ lookup('file','.././config/gpte-studentpw.txt') }}"
 
       admin_name:           "root"
@@ -47,26 +47,26 @@ all:
         
       enable_unit:
         appstream:          False
-        boom:               True
-        buildah:            True
-        ebpf:               True
-        firewalld:          True
-        kpatch:             True
-        nftables:           True
-        podman:             True
-        stratis:            True
-        systemd:            True
-        tlog:               True
-        imagebuilder:       True
-        virtualization:     True
-        vdo:                True
+        boom:               False
+        buildah:            False
+        ebpf:               False
+        firewalld:          False
+        kpatch:             False
+        nftables:           False
+        podman:             False
+        stratis:            False
+        systemd:            False
+        tlog:               False
+        imagebuilder:       False
+        virtualization:     False
+        vdo:                False
         wayland:            False
-        leapp:              True
-        webconsole:         True
+        leapp:              False
+        webconsole:         False
 
     workshop_extras:
 
-      network_fqdn:         "{{ workshop_vars.clustername }}.{{ workshop_vars.network_basedomain }}"
+      network_fqdn:         "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
 
 
 
@@ -92,8 +92,6 @@ all:
 myBastion:
   hosts:
     bastion:
-  vars:
-    ansible_connection: local
 
 
 
@@ -104,8 +102,9 @@ myBastion:
 myNodes:
   hosts:
     node1:
+      ansible_connection: local
     node2:
     node3:
 
     leapp:
-      ansible_user: "ec2-user" 
+      ansible_user: "{{ lookup('file','.././config/gpte-student.txt') }}"
