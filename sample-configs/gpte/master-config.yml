@@ -107,4 +107,3 @@ myNodes:
     node3:
 
     leapp:
-      ansible_user: "{{ lookup('file','.././config/gpte-student.txt') }}"
