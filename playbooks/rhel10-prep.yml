@@ -77,11 +77,11 @@
     with_items:
       - {name: 'rhsmcertd'}
 
-  - name: "rhel10-prep : CMD disable package plugins for subscription-manager"
-    shell: 
-      cmd: |          
-        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/subscription-manager.conf
-        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/product-id.conf
+#  - name: "rhel10-prep : CMD disable package plugins for subscription-manager"
+#    shell: 
+#      cmd: |          
+#        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/subscription-manager.conf
+#        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/product-id.conf
                   
   - name: "rhel10-prep : create and/or reset admin user"
     vars:
