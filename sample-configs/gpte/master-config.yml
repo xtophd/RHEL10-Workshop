@@ -93,12 +93,6 @@ myBastion:
   hosts:
     bastion:
 
-
-
-## -----------------
-
-
-
 myNodes:
   hosts:
     node1:
@@ -106,4 +100,6 @@ myNodes:
     node2:
     node3:
 
+myLeapp:
+  hosts:
     leapp:
