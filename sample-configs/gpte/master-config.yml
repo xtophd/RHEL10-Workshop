@@ -46,7 +46,7 @@ all:
         configure_dnsmasq:  False
         
       enable_unit:
-        appstream:          False
+        dnf:                True
         boom:               False
         buildah:            False
         ebpf:               False
