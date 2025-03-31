@@ -59,8 +59,8 @@ all:
         imagebuilder:       True
         virtualization:     True
         vdo:                True
+        kpatch:             True
         webconsole:         False
-        kpatch:             False
         wayland:            False
         leapp:              False
 
