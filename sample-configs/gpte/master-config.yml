@@ -53,9 +53,9 @@ all:
         firewalld:          True
         kpatch:             False
         nftables:           True
-        podman:             False
+        podman:             True
         stratis:            False
-        systemd:            False
+        systemd:            True
         tlog:               False
         imagebuilder:       False
         virtualization:     False

@@ -1,0 +1,11 @@
+FROM ubi9/ubi
+
+RUN dnf --disablerepo=* --enablerepo=ubi-9-baseos-rpms --enablerepo=ubi-9-appstream-rpms install -y httpd
+RUN dnf clean all
+
+RUN echo "The Web Server is Running" > /var/www/html/index.html
+
+EXPOSE 80
+
+CMD ["-D", "FOREGROUND"]
+ENTRYPOINT ["/usr/sbin/httpd"]
