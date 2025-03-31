@@ -47,22 +47,22 @@ all:
         
       enable_unit:
         dnf:                True
-        boom:               False
-        buildah:            False
+        boom:               True
+        buildah:            True
         ebpf:               True
         firewalld:          True
-        kpatch:             False
         nftables:           True
         podman:             True
         stratis:            True
         systemd:            True
-        tlog:               False
-        imagebuilder:       False
-        virtualization:     False
-        vdo:                False
+        tlog:               True
+        imagebuilder:       True
+        virtualization:     True
+        vdo:                True
+        webconsole:         True
+        kpatch:             False
         wayland:            False
         leapp:              False
-        webconsole:         False
 
     workshop_extras:
 
