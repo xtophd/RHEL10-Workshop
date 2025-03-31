@@ -54,18 +54,18 @@
 #  when: workshop_vars.enable_unit.boom
 #  tags: boom
 #
-#- import_playbook: rhel10-unit-podman.yml
-#  when: workshop_vars.enable_unit.podman
-#  tags: podman
-#
+- import_playbook: rhel10-unit-podman.yml
+  when: workshop_vars.enable_unit.podman
+  tags: podman
+
 #- import_playbook: rhel10-unit-buildah.yml
 #  when: workshop_vars.enable_unit.buildah
 #  tags: buildah
 #
-#- import_playbook: rhel10-unit-stratis.yml
-#  when: workshop_vars.enable_unit.stratis
-#  tags: stratis
-#
+- import_playbook: rhel10-unit-stratis.yml
+  when: workshop_vars.enable_unit.stratis
+  tags: stratis
+
 #- import_playbook: rhel10-unit-tlog.yml
 #  when: workshop_vars.enable_unit.tlog
 #  tags: tlog
