@@ -3,9 +3,6 @@
   become: true
   tasks:
 
-    - debug:
-        msg:"rhel10-unit-dnf : setup unit dnf" 
-
     - name: "rhel10-unit-dnf : workshop script installs"
       template:
         src: "{{ item.src }}"
