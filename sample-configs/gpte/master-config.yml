@@ -54,7 +54,7 @@ all:
         kpatch:             False
         nftables:           True
         podman:             True
-        stratis:            False
+        stratis:            True
         systemd:            True
         tlog:               False
         imagebuilder:       False
