@@ -1,5 +1,5 @@
 ---
-- hosts: mtBastion,myNodes
+- hosts: myBastion,myNodes
   become: true
   tasks:
 
