@@ -30,13 +30,13 @@
 #  when: workshop_vars.enable_unit.wayland
 #  tags: wayland
 #
-#- import_playbook: rhel10-unit-appstream.yml
-#  when: workshop_vars.enable_unit.appstream
-#  tags: appstream
-#
-#- import_playbook: rhel10-unit-systemd.yml
-#  when: workshop_vars.enable_unit.systemd
-#  tags: systemd
+- import_playbook: rhel10-unit-dnf.yml
+  when: workshop_vars.enable_unit.dnf
+  tags: dnf
+
+- import_playbook: rhel10-unit-systemd.yml
+  when: workshop_vars.enable_unit.systemd
+  tags: systemd
 #
 #- import_playbook: rhel10-unit-firewalld.yml
 #  when: workshop_vars.enable_unit.firewalld

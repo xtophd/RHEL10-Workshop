@@ -1,0 +1,18 @@
+---
+- hosts: node1
+  become: true
+  tasks:
+
+    - debug:
+        msg:"rhel10-unit-dnf : setup unit dnf" 
+
+    - name: "rhel10-unit-dnf : workshop script installs"
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2',           dest: '/usr/local/bin/workshop-dnf-checkhost.sh'}
+
