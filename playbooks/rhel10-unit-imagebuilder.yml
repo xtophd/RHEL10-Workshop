@@ -1,5 +1,5 @@
 ---
-- hosts: myBastion
+- hosts: node1
   become: true
   tasks:
 
