@@ -49,10 +49,10 @@ all:
         dnf:                True
         boom:               False
         buildah:            False
-        ebpf:               False
-        firewalld:          False
+        ebpf:               True
+        firewalld:          True
         kpatch:             False
-        nftables:           False
+        nftables:           True
         podman:             False
         stratis:            False
         systemd:            False
