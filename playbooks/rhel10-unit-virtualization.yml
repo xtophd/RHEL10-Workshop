@@ -1,5 +1,5 @@
 ---
-- hosts: myBastion
+- hosts: node1
   become: true
   tasks:
 
@@ -15,16 +15,6 @@
 
     - name: "rhel10-unit-virtualization : firewalld service start"
       service: name="firewalld" state=started enabled=yes
-
-    - name: "rhel10-unit-virtualization : workshop script installs"
-      template:
-        src: "{{ item.src }}"
-        dest: "{{ item.dest }}"
-        owner: root
-        group: root
-        mode: 0744
-      with_items:
-        - {src: 'workshop-checkhost.j2',           dest: '/usr/local/bin/workshop-virt-checkhost.sh'}
 
     - name: "rhel10-unit-virtualization : workshop file installs"
       template:
