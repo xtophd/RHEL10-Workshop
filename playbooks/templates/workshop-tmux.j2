@@ -20,8 +20,8 @@ fi
 
 ##    Check if current user is student
 
-if [[ $(id -un) != "student" ]]; then
-  echo "WARNING: for purposes of this workshop... only use 'tmux' as user 'student'"
+if [[ $(id -un) != "lab-user" ]]; then
+  echo "WARNING: for purposes of this workshop... only use 'tmux' as user 'lab-user'"
   exit 1
 fi
 
