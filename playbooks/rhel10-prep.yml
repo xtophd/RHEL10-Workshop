@@ -39,7 +39,7 @@
       mode: "{{ item.mode }}"
     with_items:
       - {mode: '0755', src: 'workshop-tmux.j2',            dest: '/usr/local/bin/workshop-tmux.sh'}
- 
+
 
 
 - hosts: myNodes
@@ -53,12 +53,6 @@
       owner: root
       group: root
       mode: 0644  
-
-
-
-- hosts: myNodes
-  become: true
-  tasks:
 
   - name: "rhel10-prep : PACKAGE remove UN-WANTED packages"
     package: name=insights-client state=absent
@@ -145,7 +139,7 @@
       - "root"
       - "{{ workshop_vars.student_name }}"
 
-  - name: "rhel10-prep : check ssh known_hosts  permissions"
+  - name: "rhel10-prep : check ssh known_hosts permissions"
     file:
       path: "~{{ item }}/.ssh/known_hosts"
       mode: "0700"
