@@ -1,5 +1,5 @@
 ---
-- hosts: myBastion
+- hosts: node3
   become: true
   tasks:
   
@@ -18,34 +18,34 @@
       delay: 5
       when: ansible_distribution_version is version('8.3','<=')
 
-    - name: "rhel10-unit-webconsole : shell to add selinux rule for websm on port 443"
-      shell: 
-        cmd: |
-          semanage port -m -t websm_port_t -p tcp 443
+#    - name: "rhel10-unit-webconsole : shell to add selinux rule for websm on port 443"
+#      shell: 
+#        cmd: |
+#          semanage port -m -t websm_port_t -p tcp 443
       
-    - name: "rhel10-unit-webconsole : create cockpit systemd drop-in directory"
-      file:
-        path: "/etc/systemd/system/cockpit.socket.d/"
-        mode: "0755"
-        owner: "root"
-        group: "root"
-        state: directory
+#    - name: "rhel10-unit-webconsole : create cockpit systemd drop-in directory"
+#      file:
+#        path: "/etc/systemd/system/cockpit.socket.d/"
+#        mode: "0755"
+#        owner: "root"
+#        group: "root"
+#        state: directory
 
-    - name: "rhel10-unit-webconsole : deploy cockpit drop-in config"
-      vars:
-        - p_port: "443"
-      template:
-        src:  "cockpit-listen-conf.j2"
-        dest: "/etc/systemd/system/cockpit.socket.d/listen.conf"
-        owner: root
-        group: root
-        mode: 0644
+#    - name: "rhel10-unit-webconsole : deploy cockpit drop-in config"
+#      vars:
+#        - p_port: "443"
+#      template:
+#        src:  "cockpit-listen-conf.j2"
+#        dest: "/etc/systemd/system/cockpit.socket.d/listen.conf"
+#        owner: root
+#        group: root
+#        mode: 0644
 
     - name: "rhel10-unit-webconsole : service restart"
       service: name="cockpit.socket" state=restarted enabled=yes daemon-reload=yes
 
-    - name: "rhel10-unit-webconsole : firewalld service start"
-      service: name="firewalld" state=restarted enabled=yes
+#    - name: "rhel10-unit-webconsole : firewalld service start"
+#      service: name="firewalld" state=restarted enabled=yes
 
 #    - name: "rhel10-unit-webconsole : firewall configuration"
 #      firewalld: service="cockpit" permanent=yes immediate=yes state=enabled
@@ -62,14 +62,14 @@
             runtime: true
             state: enabled
 
-    - name: "rhel10-unit-webconsole : additional firewall service port configuration"
-      include_role: name="rhel-system-roles.firewall"
-      vars: 
-        firewall:
-          - port:      "443/tcp"
-            permanent: true 
-            runtime:   true
-            state:     enabled
+#    - name: "rhel10-unit-webconsole : additional firewall service port configuration"
+#      include_role: name="rhel-system-roles.firewall"
+#      vars: 
+#        firewall:
+#          - port:      "443/tcp"
+#            permanent: true 
+#            runtime:   true
+#            state:     enabled
 
     - name: "rhel10-unit-webconsole : workshop file installs"
       template:
