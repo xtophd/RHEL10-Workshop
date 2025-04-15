@@ -60,7 +60,7 @@ all:
         virtualization:     True
         vdo:                True
         kpatch:             True
-        webconsole:         False
+        webconsole:         True
         wayland:            False
         leapp:              False
 
