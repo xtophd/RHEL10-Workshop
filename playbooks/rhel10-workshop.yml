@@ -78,6 +78,10 @@
   when: workshop_vars.enable_unit.virtualization
   tags: virt
 
+- import_playbook: rhel10-unit-lightspeed.yml
+  when: workshop_vars.enable_unit.lightspeed
+  tags: lightspeed
+
 #- import_playbook: rhel10-unit-wayland.yml
 #  when: workshop_vars.enable_unit.wayland
 #  tags: wayland

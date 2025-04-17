@@ -1,0 +1,24 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+
+    - name: "rhel10-unit-lightspeed : package install"
+      package: 
+        name:  command-line-assistant
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-lightspeed : workshop script installs"
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-lightspeed-checkhost.sh'}
+

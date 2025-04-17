@@ -60,6 +60,7 @@ case "$1" in
     "firewalld"   | \
     "nftables"    | \
     "leapp"       | \
+    "lightspeed"  | \
     "prep"        | \
     "podman"      | \
     "settings"    | \

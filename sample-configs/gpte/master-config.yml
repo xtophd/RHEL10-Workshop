@@ -52,6 +52,7 @@ all:
         ebpf:               True
         firewalld:          True
         nftables:           True
+        lightspeed:         True
         podman:             True
         stratis:            True
         systemd:            True
