@@ -9,15 +9,17 @@
 
   pre_tasks:
   
-    - name: "rhel10-unit-tlog : yum install packages"
-      yum: name=rhel-system-roles state=installed
+    - name: "rhel10-unit-tlog : dnf install packages"
+      ansible.builtin.dnf: 
+        name: rhel-system-roles 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
       
     - name: "rhel10-unit-tlog USER create and/or reset users"
-      user: 
+      ansible.builtin.user: 
         name:     "other-user"
         password: "{{ 'redhat' | password_hash('sha512') }}"
 
@@ -36,7 +38,7 @@
     - name: "rhel10-unit-tlog : sudo configuration"
       vars:
         t_studentName: "other-user"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root
@@ -46,7 +48,7 @@
         - {src: 'sudoers-student.j2', dest: '/etc/sudoers.d/other-user'}
 
     - name: "rhel10-unit-tlog : workshop file installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

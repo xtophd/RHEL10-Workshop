@@ -3,15 +3,17 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-skopeo : yum install buildah,skopeo"
-      yum: name=buildah,skopeo state=installed
+    - name: "rhel10-unit-skopeo : dnf install buildah,skopeo"
+      ansible.builtin.dnf:
+        name: buildah,skopeo 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
     - name: "rhel10-unit-skopeo : workshop script installs"
-      template:
+      anible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

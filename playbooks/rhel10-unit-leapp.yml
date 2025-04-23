@@ -3,8 +3,10 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-leapp : yum install firewalld"
-      yum: name=firewalld state=installed
+    - name: "rhel10-unit-leapp : dnf install firewalld"
+      ansible.builtin.dnf: 
+        name: firewalld 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
@@ -15,7 +17,7 @@
         t_filename: "leapp-data17.tar.gz"
         t_destpath: "/usr/local/src"
         t_src_url:  "https://people.redhat.com/cdoerbec/VQRlX6Ggks"
-      get_url:
+      ansible.builtin.get_url:
         url: "{{ t_src_url }}/{{ t_filename }}"
         dest: "{{ t_destpath }}/{{ t_filename }}"
         owner: root
@@ -29,7 +31,7 @@
       ignore_errors: yes
 
     - name: "rhel10-unit-leapp : workshop file installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

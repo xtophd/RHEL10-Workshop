@@ -3,15 +3,17 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-lvm-vdo : yum install vdo"
-      yum: name=vdo state=installed
+    - name: "rhel10-unit-lvm-vdo : dnf install vdo"
+      ansible.builtin.dnf: 
+        name: vdo 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
     - name: "rhel10-unit-lvm-vdo : workshop script installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root
@@ -19,3 +21,4 @@
         mode: 0744
       with_items:
         - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-vdo-checkhost.sh'}
+

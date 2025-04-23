@@ -3,18 +3,23 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-stratis : yum install packages"
-      yum: name=stratisd,stratis-cli,lvm2 state=installed
+    - name: "rhel10-unit-stratis : dnf install packages"
+      ansible.builtin.dnf: 
+        name: stratisd,stratis-cli,lvm2 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
       
     - name: "rhel10-unit-stratis : service restart"
-      service: name="stratisd" state=restarted enabled=yes
+      ansible.builtin.systemd_service: 
+        name: stratisd
+        state: restarted 
+        enabled: yes
 
     - name: "rhel10-unit-stratis : workshop file installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

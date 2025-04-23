@@ -3,20 +3,22 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-boom : yum install packages"
-      yum: name=boom-boot state=installed
+    - name: "rhel10-unit-boom : dnf install packages"
+      ansible.builtin.dnf: 
+        name: boom-boot
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
     - name: "PREP-SSHKEYS: known_hosts {{ workshop_vars.studentName }} file permissions"
-      file:
+      ansible.builtin.file:
         path: "/boot/loader/entries/84047b4cff36437eb8209baa78d1ef3c-0-rescue.conf"
         state: absent
       
     - name: "rhel10-unit-boom : workshop file installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

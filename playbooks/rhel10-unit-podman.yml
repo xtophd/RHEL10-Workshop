@@ -3,15 +3,17 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-podman : yum install podman,net-tools,wget"
-      yum: name=podman,net-tools,wget state=installed
+    - name: "rhel10-unit-podman : dnf install podman,net-tools,wget"
+      ansible.builtin.dnf: 
+        name: podman,net-tools,wget 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
     - name: "rhel10-unit-podman : config file installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root
@@ -22,7 +24,7 @@
         - {src: 'podman-ocifile.j2',    dest: '/root/custom_image.OCIFile'}
 
     - name: "rhel10-unit-podman : workshop script installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

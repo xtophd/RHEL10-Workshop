@@ -3,15 +3,17 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-ebpf : yum install bcc-tools"
-      yum: name="bcc-tools,net-tools,strace,bpftrace,kernel-devel-{{ansible_kernel}}"  state=installed
+    - name: "rhel10-unit-ebpf : dnf install bcc-tools"
+      ansible.builtin.dnf: 
+        name: bcc-tools,net-tools,strace,bpftrace,kernel-devel-{{ansible_kernel}}
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
     - name: "rhel10-unit-ebpf : workshop script installs"
-      template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root
