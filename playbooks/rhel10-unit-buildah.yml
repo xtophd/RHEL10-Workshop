@@ -3,7 +3,7 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-skopeo : dnf install buildah,skopeo"
+    - name: "rhel10-unit-buildah : dnf install buildah,skopeo"
       ansible.builtin.dnf:
         name: buildah,skopeo 
         state: installed
@@ -13,7 +13,7 @@
       delay: 5
 
     - name: "rhel10-unit-skopeo : workshop script installs"
-      anible.builtin.template:
+      ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
         owner: root

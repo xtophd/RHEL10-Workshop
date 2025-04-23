@@ -42,7 +42,7 @@
         state: stopped
 
     - name: "rhel10-unit-imagebuilder : service workers stop"
-      ansible.builtin.systemd_service:: 
+      ansible.builtin.systemd_service: 
         name: "{{ item }}"
         state: stopped
       with_items:
@@ -51,7 +51,7 @@
         - "osbuild-composer.service"
 
     - name: "rhel10-unit-imagebuilder : service enable and start"
-      ansible.builtin.systemd_service:: 
+      ansible.builtin.systemd_service: 
         name: "osbuild-composer.socket" 
         enabled: yes
         state: started
