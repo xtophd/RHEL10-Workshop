@@ -3,18 +3,35 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-firewalld : yum install firewalld"
-      yum: name=firewalld state=installed
+    - name: "rhel10-unit-firewalld : dnf install firewalld"
+      ansible.builtin.dnf : 
+        name: firewalld,nftables 
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
-    - name: "rhel10-unit-firewalld : service stop nftables"
-      service: name=nftables state=stopped enabled=no
 
-    - name: "rhel10-unit-firewalld : service start firewalld"
-      service: name=firewalld state=started enabled=yes
+    ##    NOTE:
+    ##
+    ##         You should NOT have both nftables 
+    ##         and firewalld services enabled.
+    ##
+
+    - name: "rhel10-unit-firewalld : service stop/disable/mask nftables"
+      ansible.builtin.systemd_service:
+        name: nftables 
+        state: stopped 
+        enabled: no 
+        masked: yes
+
+    - name: "rhel10-unit-firewalld : service (re)start/enable/unmask firewalld"
+      ansible.builtin.systemd_service: 
+        name: firewalld 
+        state: restarted 
+        enabled: yes
+        masked: no
       
     - name: "rhel10-unit-firewalld : workshop script installs"
       template:
