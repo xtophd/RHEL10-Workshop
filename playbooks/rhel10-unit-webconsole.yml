@@ -1,33 +1,16 @@
 ---
-- hosts: node3
+- hosts: myNodes
   become: true
   tasks:
   
     - name: "rhel10-unit-webconsole : dnf install packages"
       ansible.builtin.dnf: 
-        name: cockpit,cockpit-pcp,firewalld,sos 
+        name: cockpit,sos 
         state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
-
-    - name: "rhel10-unit-webconsole : dnf install cockpit-dashboard for rhel <= 8.3"
-      ansible.builtin.dnf: 
-        name: cockpit-dashboard 
-        state: installed
-      register: result
-      retries: 10
-      until: result is succeeded
-      delay: 5
-      when: ansible_distribution_version is version('8.3','<=')
-
-    - name: "rhel10-unit-webconsole : service restart"
-      ansible.builtin.systemd_service: 
-        name: "cockpit.socket" 
-        state: restarted 
-        enabled: yes 
-        daemon-reload: yes
 
     - name: "rhel10-unit-webconsole : firewall service configuration"
       include_role: name="rhel-system-roles.firewall"
@@ -50,39 +33,39 @@
 
 
 
-
-- hosts: myNodes,!node3
+- hosts: node3
   become: true
   tasks:
-  
+
     - name: "rhel10-unit-webconsole : dnf install packages"
       ansible.builtin.dnf: 
-        name: cockpit,firewalld,sos 
+        name: cockpit-pcp
         state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
 
+    - name: "rhel10-unit-webconsole : dnf install cockpit-dashboard for rhel <= 8.3"
+      ansible.builtin.dnf: 
+        name: cockpit-dashboard 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+      when: ansible_distribution_version is version('8.3','<=')
+
+
+
+- hosts: myNodes
+  become: true
+  tasks:
+  
     - name: "rhel10-unit-webconsole : service restart"
       ansible.builtin.systemd_service: 
         name: "cockpit.socket" 
         state: restarted 
         enabled: yes 
         daemon-reload: yes
-
-    - name: "rhel10-unit-webconsole : firewalld service start"
-      ansible.builtin.systemd_service: 
-        name: "firewalld" 
-        state: restarted 
-        enabled: yes
-
-    - name: "rhel10-unit-webconsole : firewall service configuration"
-      include_role: name="rhel-system-roles.firewall"
-      vars:
-        firewall:
-          - service: cockpit
-            permanent: true
-            runtime: true
-            state: enabled
 
