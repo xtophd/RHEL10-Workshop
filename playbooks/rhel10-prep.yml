@@ -55,8 +55,8 @@
       owner: "{{ workshop_vars.student_name }}"
       group: "users"
       mode: 0400
-      regexp: '^.*ConnectionTimeout.*'
-      line: '  ConnectionTimeout 3600'
+      regexp: '^.*ConnectTimeout.*'
+      line: '  ConnectTimeout 3600'
 
 
 
