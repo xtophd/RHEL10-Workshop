@@ -50,10 +50,10 @@
 
     - name: Changing SSH connection timeout
       ansible.builtin.lineinfile
-        path: /home/{ workshop_vars.student_name }/.ssh/config
+        path: /home/{{ workshop_vars.student_name }}/.ssh/config
         create: true
-        owner: { workshop_vars.student_name }
-        group: { workshop_vars.student_name }
+        owner: {{ workshop_vars.student_name }}
+        group: {{ workshop_vars.student_name }}
         mode: 0400
         regexp: '^.*ConnectionTimeout.*'
         line: '  ConnectionTimeout 3600'
