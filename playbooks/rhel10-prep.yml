@@ -53,7 +53,7 @@
       path: "/home/{{ workshop_vars.student_name }}/.ssh/config"
       create: true
       owner: "{{ workshop_vars.student_name }}"
-      group: "{{ workshop_vars.student_name }}"
+      group: "users"
       mode: 0400
       regexp: '^.*ConnectionTimeout.*'
       line: '  ConnectionTimeout 3600'
