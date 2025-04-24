@@ -86,6 +86,15 @@
     until: result is succeeded
     delay: 5
 
+  - name: "rhel10-prep : PACKAGE update everything to latest"
+    dnf: 
+      name: '*'
+      state: latest
+    register: result
+    retries: 10
+    until: result is succeeded
+    delay: 5
+
   - name: "rhel10-prep : FILE remove UN-WANTED motd messages"
     file:
       path: /etc/motd.d/cockpit
