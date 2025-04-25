@@ -32,7 +32,7 @@
 
   - name: "rhel10-prep : PACKAGE install WANTED packages"
     dnf: 
-      name: tmux,policycoreutils-python-utils,firewalld
+      name: tmux,policycoreutils-python-utils
       state: installed
     register: result
     retries: 10
