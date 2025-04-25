@@ -31,7 +31,9 @@
       mode: 0644  
 
   - name: "rhel10-prep : PACKAGE install WANTED packages"
-    package: name=tmux,policycoreutils-python-utils state=installed
+    dnf: 
+      name: tmux,policycoreutils-python-utils 
+      state: installed
     register: result
     retries: 10
     until: result is succeeded
@@ -72,21 +74,25 @@
       group: root
       mode: 0644  
 
-  - name: "rhel10-prep : PACKAGE remove UN-WANTED packages"
-    package: name=insights-client state=absent
+  - name: "rhel10-prep : dnf remove UN-WANTED packages"
+    dnf: 
+      name: insights-client 
+      state: absent
     register: result
     retries: 10
     until: result is succeeded
     delay: 5
 
-  - name: "rhel10-prep : PACKAGE install WANTED packages"
-    package: name=tmux,policycoreutils-python-utils,firewalld state=installed
+  - name: "rhel10-prep : dnf install WANTED packages"
+    dnf: 
+      name: tmux,policycoreutils-python-utils,firewalld 
+      state: installed
     register: result
     retries: 10
     until: result is succeeded
     delay: 5
 
-  - name: "rhel10-prep : PACKAGE update everything to latest"
+  - name: "rhel10-prep : dnf update everything to latest"
     dnf: 
       name: '*'
       state: latest
