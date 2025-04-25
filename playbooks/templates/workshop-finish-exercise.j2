@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ##
-##    This script kills the current tty session, there-by
+##    This script kills anyting the SUDO_USER is running, there-by
 ##    returning a participant to the bastion-host (or 
-##    whereever they connected from.
+##    whereever they connected from).
 ##
 
-[[ $(hostname -s) != "bastion" ]] && pkill -9 -t $(tty | sed -e 's|/dev/||')
+[[ $(hostname -s) != "bastion" ]] && pkill -9 -u ${SUDO_USER}

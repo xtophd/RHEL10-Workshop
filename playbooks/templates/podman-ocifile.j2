@@ -1,6 +1,13 @@
-FROM ubi9/ubi
+FROM ubi10-beta/ubi:latest
 
-RUN dnf --disablerepo=* --enablerepo=ubi-9-baseos-rpms --enablerepo=ubi-9-appstream-rpms install -y httpd
+#NOTE:  Until RHEL10 is GA, we can only use the local hosts repos to augment the
+#       the container image with additional content.
+#       Once GA, we can utilize the public ubi repos
+#
+#RUN dnf --disablerepo=* --enablerepo=ubi-10-baseos-rpms --enablerepo=ubi-10-appstream-rpms install -y httpd
+
+RUN dnf install -y httpd
+
 RUN dnf clean all
 
 RUN echo "The Web Server is Running" > /var/www/html/index.html
