@@ -3,8 +3,8 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-lightspeed : package install"
-      package: 
+    - name: "rhel10-unit-lightspeed : dnf install packages"
+      dnf: 
         name:  command-line-assistant
         state: installed
       register: result
