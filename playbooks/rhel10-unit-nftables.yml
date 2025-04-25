@@ -3,7 +3,7 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-nftables : dnf install firewalld"
+    - name: "rhel10-unit-nftables : dnf install packages"
       ansible.builtin.dnf: 
         name: firewalld,nftables
         state: installed
@@ -17,20 +17,22 @@
     ##         You should NOT have both nftables
     ##         and firewalld services enabled.
     ##
+    ##         We are only installing the packages, not swapping services
+    ##
 
-    - name: "rhel10-unit-nftables : service start/enable/unmask nftables"
+    - name: "rhel10-unit-nftables : service nftables stopped/masked/disabled nftables"
       ansible.builtin.systemd_service:
         name: nftables 
-        state: restarted
-        enabled: yes 
-        masked: no
-
-    - name: "rhel10-unit-nftables : service stop/disable/mask firewalld"
-      ansible.builtin.systemd_service:
-        name: firewalld 
         state: stopped
         enabled: no
         masked: yes
+
+    - name: "rhel10-unit-nftables : service firewalld started/unmasked/enabled firewalld"
+      ansible.builtin.systemd_service:
+        name: firewalld 
+        state: started
+        enabled: yes
+        masked: no
   
     - name: "rhel10-unit-nftables : workshop script installs"
       template:

@@ -12,15 +12,6 @@
       until: result is succeeded
       delay: 5
 
-    - name: "rhel10-unit-webconsole : firewall service configuration"
-      include_role: name="rhel-system-roles.firewall"
-      vars:
-        firewall:
-          - service: cockpit
-            permanent: true
-            runtime: true
-            state: enabled
-
     - name: "rhel10-unit-webconsole : workshop file installs"
       ansible.builtin.template:
         src: "{{ item.src }}"
@@ -37,7 +28,7 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-webconsole : dnf install packages"
+    - name: "rhel10-unit-webconsole : dnf install additional packages"
       ansible.builtin.dnf: 
         name: cockpit-pcp
         state: installed
@@ -62,10 +53,20 @@
   become: true
   tasks:
   
-    - name: "rhel10-unit-webconsole : service restart"
+    - name: "rhel10-unit-webconsole : webconsole service restart"
       ansible.builtin.systemd_service: 
         name: "cockpit.socket" 
         state: restarted 
         enabled: yes 
         daemon-reload: yes
+
+    - name: "rhel10-unit-webconsole : enable cockpit firewall service"
+      include_role: name="rhel-system-roles.firewall"
+      vars:
+        firewall:
+          - service: cockpit
+            permanent: true
+            runtime: true
+            state: enabled
+            firewall_transactional_update_reboot_ok: false
 
