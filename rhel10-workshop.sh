@@ -49,7 +49,7 @@ fi
     
 case "$1" in
     "all")
-        time  ansible-playbook ${askVaultPass} -i ${myInventory} -f 10  ./playbooks/rhel10-workshop.yml
+        time  ansible-playbook ${askVaultPass} -i ${myInventory} ./playbooks/rhel10-workshop.yml
         ;;
 
     "bastion"     | \
@@ -74,7 +74,7 @@ case "$1" in
     "webconsole"  | \
     "kpatch")
 
-        time  ansible-playbook  ${askVaultPass} -i ${myInventory} -f 10 --tags $1 ./playbooks/rhel10-workshop.yml
+        time  ansible-playbook  ${askVaultPass} -i ${myInventory} --tags $1 ./playbooks/rhel10-workshop.yml
         ;;
 
     *)
