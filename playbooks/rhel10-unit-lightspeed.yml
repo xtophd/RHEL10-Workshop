@@ -5,7 +5,7 @@
 
     - name: "rhel10-unit-lightspeed : dnf install packages"
       dnf: 
-        name:  command-line-assistant
+        name:  command-line-assistant,httpd
         state: installed
       register: result
       retries: 10
@@ -21,4 +21,5 @@
         mode: 0744
       with_items:
         - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-lightspeed-checkhost.sh'}
-
+        - {src: 'lightspeed-httpd-conf.j2', dest: '/etc/httpd/conf/httpd.conf'}
+        
