@@ -1,0 +1,16 @@
+#!/usr/bin/bash
+
+##    CHANGE DIR
+cd /opt/showroom/content/
+
+##    BACKUP: index.html
+cp -f www/index.html /tmp/index-html.bak
+
+##    GIT PULL UPDATES AS SHOWROOM USER
+sudo -u showroom git pull
+
+##    START POD
+podman  run  -v "./:/antora:Z" antora/antora default-site.yml
+
+##    RESTORE: index.html
+cp -f /tmp/index-index.bak www/index.html
