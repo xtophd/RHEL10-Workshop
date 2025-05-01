@@ -5,7 +5,7 @@
 
     - name: "rhel10-unit-systemd : dnf install LAMP packages"
       ansible.builtin.dnf: 
-        name: httpd,mariadb,mariadb-server 
+        name: httpd,mariadb,mariadb-server,php 
         state: installed
       register: result
       retries: 10
