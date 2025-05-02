@@ -1,0 +1,3 @@
+#!/usr/bin/bash
+
+nft -n -a list table inet workshop | grep 'dport 80' | sed -e 's/^.*handle\s*//'
