@@ -42,5 +42,5 @@
         group: root
         mode: 0744
       with_items:
-        - {src: 'workshop-nft-gethandle.j2',           dest: '/usr/local/bin/workshop-nft-gethandle.sh'}
+        - {src: 'workshop-nftables-gethandle.j2',      dest: '/usr/local/bin/workshop-nftables-gethandle.sh'}
         - {src: 'workshop-checkhost.j2',               dest: '/usr/local/bin/workshop-nftables-checkhost.sh'}
