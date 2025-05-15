@@ -28,9 +28,9 @@
   become: true
   tasks:
 
-    - name: "rhel10-unit-webconsole : dnf install additional packages"
+    - name: "rhel10-unit-webconsole : dnf install additional packages (pmlogger in particular)"
       ansible.builtin.dnf: 
-        name: cockpit-pcp
+        name: pcp
         state: installed
       register: result
       retries: 10
