@@ -30,7 +30,7 @@
 
     - name: "rhel10-unit-webconsole : dnf install additional packages (pmlogger in particular)"
       ansible.builtin.dnf: 
-        name: pcp
+        name: pcp,python3-pcp
         state: installed
       register: result
       retries: 10
