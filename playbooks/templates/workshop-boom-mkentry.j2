@@ -30,13 +30,13 @@ if /usr/sbin/lvs -q ${rootdev} 2>/dev/null ; then
   echo "DEBUG: boom create --title 'RHEL 10 Workshop' --root-lv ${rootvg}/${rootlv}"
   echo ""
 
-  boom create --title 'RHEL 10 Workshop' --root-lv ${rootvg}/${rootlv} --osversion "10.0 Beta (Coughlan)"
+  boom create --title 'RHEL 10 Workshop' --root-lv ${rootvg}/${rootlv} --osversion "10.0 (Coughlan)"
 
 else
 
   echo ""
-  echo "DEBUG: boom create --title 'RHEL 9 Workshop' --root-device ${rootdev}"
+  echo "DEBUG: boom create --title 'RHEL 10 Workshop' --root-device ${rootdev}"
   echo ""
 
-  boom create --title 'RHEL 10 Workshop' --root-device ${rootdev} --osversion "10.0 Beta (Coughlan)"
+  boom create --title 'RHEL 10 Workshop' --root-device ${rootdev} --osversion "10.0 (Coughlan)"
 fi
