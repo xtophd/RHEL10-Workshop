@@ -2,10 +2,17 @@
 - hosts: node3
   become: true
   tasks:
-  
+ 
+
+    ##
+    ##    NOTE: util-linux-core should be installed, but since we have
+    ##          dependency on 'findmnt' command, we include it along with
+    ##          boom-boot
+    ##
+ 
     - name: "rhel10-unit-boom : dnf install packages"
       ansible.builtin.dnf: 
-        name: boom-boot
+        name: boom-boot,util-linux-core
         state: installed
       register: result
       retries: 10
