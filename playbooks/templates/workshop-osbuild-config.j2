@@ -27,13 +27,13 @@ exercise_cmd "Create the osbuilder config override directory" \
 ##
 
 exercise_cmd "Locate baseos repo baseurl" \
-             "dnf repoinfo rhel-10-for-x86_64-baseos-beta-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'"
+             "dnf repoinfo rhel-10-for-x86_64-baseos-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'"
 
 exercise_cmd "Locate baseos repo appstream" \
-             "dnf repoinfo rhel-10-for-x86_64-appstream-beta-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'"
+             "dnf repoinfo rhel-10-for-x86_64-appstream-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'"
 
-export BASEOS_URL=`dnf repoinfo rhel-10-for-x86_64-baseos-beta-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'`
-export APPSTREAM_URL=`dnf repoinfo rhel-10-for-x86_64-appstream-beta-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'`
+export BASEOS_URL=`dnf repoinfo rhel-10-for-x86_64-baseos-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'`
+export APPSTREAM_URL=`dnf repoinfo rhel-10-for-x86_64-appstream-rpms 2>/dev/null | grep Repo-baseurl | awk '{print \$3}'`
 
 ##
 ##    
