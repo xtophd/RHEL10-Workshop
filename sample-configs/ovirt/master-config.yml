@@ -1,0 +1,153 @@
+##
+##    !! WARNING !!  Ansible only interprets 'True' and 'False'
+##                   as booleans when reading ini files.  Other
+##                   values such as 'true' or 'false' would be 
+##                   interpreted as strings and would break various
+##                   logic tests.  
+##
+##                   When reading YML files, booleans can take on
+##                   many forms and be interpreted correctly.
+##
+##                   For consistency, only use unquoted booleans: True & False
+
+all: 
+
+  vars:
+
+    ## ----------------------------------------
+    ##    Workshop Variables
+
+    workshop_vars:
+
+      clustername:          "r9ov10g"
+      network_basedomain:   "example.com"
+      
+      network_network:      "192.168.100.0"
+      network_netmask:      "255.255.255.0"
+      network_broadcast:    "192.168.100.255"
+      network_prefix:       "24"
+      network_gateway:      "192.168.100.1"
+      network_nameserver:   "192.168.1.30"
+      network_timeserver:   "192.168.1.30"
+
+      set_student_password: True
+      set_admin_password:   True
+
+      ##
+      ##    Passwords should be loaded from a file
+      ##    or be set in credentials.yml.  Never here
+      ##    unless you understand the risks.
+      ##
+      ##    !!! LEAVE PASSWORDS COMMENTED OUT !!!
+      ##
+
+      student_name:         "cloud-user"
+      #student_password:     ""
+      admin_name:           "root"
+      #admin_password:       ""
+
+      enable_unit:
+        appstream:          True
+        boom:               True
+        buildah:            True
+        ebpf:               True
+        firewalld:          True
+        kpatch:             True
+        nftables:           True
+        podman:             True
+        stratis:            True
+        systemd:            True
+        tlog:               True
+        imagebuilder:       True
+        virtualization:     True
+        vdo:                True
+        wayland:            True
+        leapp:              True
+        webconsole:         True
+
+    workshop_extras:
+
+      network_fqdn:         "{{ workshop_vars.clustername }}.{{ workshop_vars.network_basedomain }}"
+
+
+
+
+    ## ----------------------------------------
+    ##    Xtoph Deploy Variables
+
+    xtoph_vars:
+
+      deployhost_ip:       "192.168.100.34" 
+      clustername:         "{{ workshop_vars.clustername }}"
+
+    ## ----------------------------------------
+    ##    Override default ansible host with
+    ##    one that includes fqdn.  This saves us
+    ##    from having to specify FQDN in host 
+    ##    vars section below.  This assumes all
+    ##    hosts are in the same domain. DUH!
+
+
+
+
+## ----------------------------------------
+## HOSTGROUPS & VARS
+## ----------------------------------------
+
+
+
+myDeployhost:
+  hosts:
+    deployer:
+      h_pubIP: "{{ xtoph_vars.deployhost_ip }}"
+  vars:
+    ansible_host: "{{ inventory_hostname }}.{{ workshop_extras.network_fqdn }}"
+    ansible_connection: local
+
+
+
+## -----------------
+
+
+
+myBastion:
+  hosts:
+    bastion:
+      h_pubIP:   "192.168.100.50"
+  vars:
+    ansible_host: "{{ inventory_hostname }}.{{ workshop_extras.network_fqdn }}"
+    h_plPROF:     "ovirt"
+    h_hwPROF:     "ovirt_sda"
+    h_ksPROF:     "rhel90-bootiso"
+    h_rsPROF:     "bastion"
+    h_netDEV:     "ens3"
+    h_blkDEV:     "sda"
+
+
+
+## -----------------
+
+
+
+myNodes:
+  hosts:
+    node1:
+      h_pubIP:    "192.168.100.51"
+      h_rsPROF:   "tiny"
+    node2:
+      h_pubIP:    "192.168.100.52" 
+      h_rsPROF:   "tiny-extra" 
+    node3:
+      h_pubIP:    "192.168.100.53"
+      h_rsPROF:   "tiny-extra"
+    leapp:
+      h_pubIP:    "192.168.100.54" 
+      h_ksPROF:   "rhel84-bootiso"
+      h_rsPROF:   "tiny"
+  vars: 
+    ansible_host: "{{ inventory_hostname }}.{{ workshop_extras.network_fqdn }}"
+    h_plPROF:     "ovirt"
+    h_hwPROF:     "ovirt_sda"
+    h_ksPROF:     "rhel90-bootiso"
+    h_netDEV:     "ens3"
+    h_blkDEV:     "sda"

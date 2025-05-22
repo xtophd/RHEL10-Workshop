@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# For the workshop, we need to be prepared for 3 possibilities
+#   root disk is specified by UUID
+#   root disk is a LVM
+#   root disk is a block device
+#
+# NOTE: There is unexpected behavior when /boot is not a separate
+#       filesystem/partition.  Results in missing /boot in paths.
+
+#       So we adjust the profile for now until preferred solution
+#       is determined
+
+target=`findmnt -n -o TARGET  -T /boot`
+
+if [[ "${target}" == "/boot" ]]; then
+
+  # /boot is it's own partition, so default profile works
+
+  echo "Creating default BOOM profile"
+  echo ""
+
+  boom profile create \
+    --from-host \
+    --uname-pattern el10
+
+else
+
+  echo "Creating adjusted BOOM profile (prefixing /boot to bootpath)..."
+  echo ""
+
+  # /boot is NOT it's own partition, so we need to adjust profile 
+
+  boom profile create \
+    --kernel-pattern="/boot/vmlinuz-%{version}" \
+    --initramfs-pattern="/boot/initramfs-%{version}.img" \
+    --from-host \
+    --uname-pattern el10
+
+fi
+

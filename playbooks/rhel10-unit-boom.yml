@@ -1,0 +1,45 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+ 
+
+    ##
+    ##    NOTE: util-linux-core should be installed, but since we have
+    ##          dependency on 'findmnt' command, we include it along with
+    ##          boom-boot
+    ##
+ 
+    - name: "rhel10-unit-boom : dnf install packages"
+      ansible.builtin.dnf: 
+        name: boom-boot,util-linux-core
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "PREP-SSHKEYS: known_hosts {{ workshop_vars.studentName }} file permissions"
+      ansible.builtin.file:
+        path: "/boot/loader/entries/84047b4cff36437eb8209baa78d1ef3c-0-rescue.conf"
+        state: absent
+      
+    - name: "rhel10-unit-boom : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-boom-checkhost.sh'} 
+        - {src: 'workshop-boom-mkprofile.j2', dest: '/usr/local/bin/workshop-boom-mkprofile.sh'} 
+        - {src: 'workshop-boom-mkentry.j2', dest: '/usr/local/bin/workshop-boom-mkentry.sh'} 
+        - {src: 'workshop-boom-mkentry-custom.j2', dest: '/usr/local/bin/workshop-boom-mkentry-custom.sh'} 
+        - {src: 'workshop-boom-snap-addstorage.j2', dest: '/usr/local/bin/workshop-boom-addstorage.sh'} 
+        - {src: 'workshop-boom-snap-mksnap.j2', dest: '/usr/local/bin/workshop-boom-mksnap.sh'} 
+        - {src: 'workshop-boom-snap-mkentry.j2', dest: '/usr/local/bin/workshop-boom-snap.sh'} 
+        - {src: 'workshop-boom-snap-lvreport.j2', dest: '/usr/local/bin/workshop-boom-snap-lvreport.sh'} 
+        - {src: 'workshop-boom-snap-importantstuff.j2', dest: '/usr/local/bin/workshop-boom-snap-importantstuff.sh'} 
+        - {src: 'workshop-boom-grublist.j2', dest: '/usr/local/bin/workshop-boom-grublist.sh'} 
+        

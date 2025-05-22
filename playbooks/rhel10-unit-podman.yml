@@ -1,0 +1,36 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+
+    - name: "rhel10-unit-podman : dnf install podman,net-tools,wget"
+      ansible.builtin.dnf: 
+        name: podman,net-tools,wget 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-podman : config file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0644
+      with_items:
+        - {src: 'podman-registries.j2', dest: '/etc/containers/registries.conf'}
+        - {src: 'podman-ocifile.j2',    dest: '/root/custom_image.OCIFile'}
+
+    - name: "rhel10-unit-podman : workshop script installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-podman-checkhost.sh'}
+        - {src: 'workshop-podman-loadregistry.j2', dest: '/usr/local/bin/workshop-podman-loadregistry.sh'}
+

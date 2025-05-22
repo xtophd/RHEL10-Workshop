@@ -1,0 +1,63 @@
+---
+- hosts: node1
+  become: true
+
+  vars:
+    tlog_scope_sssd: some
+    tlog_users_sssd: 
+      - other-user
+
+  pre_tasks:
+  
+    - name: "rhel10-unit-tlog : dnf install packages"
+      ansible.builtin.dnf: 
+        name: rhel-system-roles 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+      
+    - name: "rhel10-unit-tlog USER create and/or reset users"
+      ansible.builtin.user: 
+        name:     "other-user"
+        password: "{{ 'redhat' | password_hash('sha512') }}"
+
+
+    - name: Enabling SSH password login
+      ansible.builtin.lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^PasswordAuthentication'
+        line: PasswordAuthentication yes
+
+    - name: restarted sshd service
+      ansible.builtin.service:
+        name: sshd
+        state: reloaded
+
+    - name: "rhel10-unit-tlog : sudo configuration"
+      vars:
+        t_studentName: "other-user"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0600
+      with_items:
+        - {src: 'sudoers-student.j2', dest: '/etc/sudoers.d/other-user'}
+
+    - name: "rhel10-unit-tlog : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-tlog-checkhost.sh'} 
+        - {src: 'workshop-tlog-playback.j2', dest: '/usr/local/bin/workshop-tlog-playback.sh'} 
+
+  roles:
+
+    - rhel-system-roles.tlog

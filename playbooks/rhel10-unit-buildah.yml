@@ -1,0 +1,25 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+
+    - name: "rhel10-unit-buildah : dnf install buildah,skopeo"
+      ansible.builtin.dnf:
+        name: buildah,skopeo 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-skopeo : workshop script installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-buildah-checkhost.sh'}
+        - {src: 'buildah-dan-cries.j2', dest: '/var/tmp/buildah-dan-cries.txt'}
+        - {src: 'buildah-index-html.j2', dest: '/var/tmp/buildah-index.html'}

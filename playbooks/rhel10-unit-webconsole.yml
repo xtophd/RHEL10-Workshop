@@ -1,0 +1,72 @@
+---
+- hosts: myNodes
+  become: true
+  tasks:
+  
+    - name: "rhel10-unit-webconsole : dnf install packages"
+      ansible.builtin.dnf: 
+        name: cockpit,sos 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-webconsole : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-cockpit-checkhost.sh'} 
+
+
+
+- hosts: node3
+  become: true
+  tasks:
+
+    - name: "rhel10-unit-webconsole : dnf install additional packages (pmlogger in particular)"
+      ansible.builtin.dnf: 
+        name: pcp,python3-pcp
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-webconsole : dnf install cockpit-dashboard for rhel <= 8.3"
+      ansible.builtin.dnf: 
+        name: cockpit-dashboard 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+      when: ansible_distribution_version is version('8.3','<=')
+
+
+
+- hosts: myNodes
+  become: true
+  tasks:
+  
+    - name: "rhel10-unit-webconsole : webconsole service restart"
+      ansible.builtin.systemd_service: 
+        name: "cockpit.socket" 
+        state: restarted 
+        enabled: yes 
+        daemon-reload: yes
+
+    - name: "rhel10-unit-webconsole : enable cockpit firewall service"
+      include_role: name="rhel-system-roles.firewall"
+      vars:
+        firewall:
+          - service: cockpit
+            permanent: true
+            runtime: true
+            state: enabled
+            firewall_transactional_update_reboot_ok: false
+

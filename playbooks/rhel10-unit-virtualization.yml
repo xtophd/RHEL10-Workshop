@@ -1,0 +1,36 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+
+    - name: "rhel10-unit-virtualization : dnf install packages"
+      ansible.builtin.dnf: 
+        name: qemu-kvm,libvirt,firewalld,virt-install,libvirt-client,guestfs-tools,libguestfs-tools,wget,cockpit-machines 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-unit-virtualization : service restart libvirtd"
+      ansible.builtin.systemd_service: 
+        name: "libvirtd" 
+        state: started 
+        enabled: yes
+
+    - name: "rhel10-unit-virtualization : firewalld service start"
+      ansible.builtin.systemd_service: 
+        name: "firewalld" 
+        state: started 
+        enabled: yes
+
+    - name: "rhel10-unit-virtualization : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-virt-checkhost.sh'}
+

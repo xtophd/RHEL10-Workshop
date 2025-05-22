@@ -1,0 +1,14 @@
+---
+- hosts: node1
+  become: true
+
+    - name: "rhel10-unit-man : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-man-checkhost.sh'} 
+

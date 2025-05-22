@@ -1,0 +1,46 @@
+---
+- hosts: node1
+  become: true
+  tasks:
+  
+    - name: "rhel10-unit-firewalld : dnf install firewalld"
+      ansible.builtin.dnf : 
+        name: firewalld,nftables 
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    ##    NOTE:
+    ##
+    ##         You should NOT have both nftables
+    ##         and firewalld services enabled.
+    ##
+
+    - name: "rhel10-unit-nftables : service nftables stopped/masked/disabled nftables"
+      ansible.builtin.systemd_service:
+        name: nftables
+        state: stopped
+        enabled: no
+        masked: yes
+
+    - name: "rhel10-unit-nftables : service firewalld started/unmasked/enabled firewalld"
+      ansible.builtin.systemd_service:
+        name: firewalld
+        state: started
+        enabled: yes
+        masked: no
+
+    - name: "rhel10-unit-firewalld : workshop script installs"
+      template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2',               dest: '/usr/local/bin/workshop-firewalld-checkhost.sh'}
+        - {src: 'workshop-firewalld-customconfigs.j2', dest: '/usr/local/bin/workshop-firewalld-customconfigs.sh'}
+        - {src: 'workshop-firewalld-customname.j2',    dest: '/usr/local/etc/firewalld-customname.xml'}
+

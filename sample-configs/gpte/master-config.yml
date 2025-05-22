@@ -1,0 +1,106 @@
+##
+##    !! WARNING !!  Ansible only interprets 'True' and 'False'
+##                   as booleans when reading ini files.  Other
+##                   values such as 'true' or 'false' would be 
+##                   interpreted as strings and would break various
+##                   logic tests.  
+##
+##                   When reading YML files, booleans can take on
+##                   many forms and be interpreted correctly.
+##
+##                   For consistency, only use unquoted booleans: True & False
+
+all: 
+
+  vars:
+
+    ## ----------------------------------------
+    ##    Workshop Variables
+
+
+
+    workshop_vars:
+
+      clustername:          "{{ lookup('file','.././config/gpte-guid.txt') }}"
+      network_basedomain:   "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
+      network_fqdn:         "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
+      
+      set_student_password: True
+      set_admin_password:   False
+
+      ##
+      ##    Passwords should be loaded from a file
+      ##    or be set in credentials.yml.  Never here
+      ##    unless you understand the risks.
+      ##
+      ##    !!! LEAVE PASSWORDS COMMENTED OUT !!!
+      ##
+
+      student_name:         "{{ lookup('file','.././config/gpte-student.txt') }}"
+      student_password:     "{{ lookup('file','.././config/gpte-studentpw.txt') }}"
+
+      admin_name:           "root"
+      #admin_password:       ""
+
+      bastion:
+        configure_dnsmasq:  False
+        
+      enable_unit:
+        dnf:                True
+        boom:               True
+        buildah:            True
+        ebpf:               True
+        firewalld:          True
+        nftables:           True
+        lightspeed:         True
+        podman:             True
+        stratis:            True
+        systemd:            True
+        tlog:               True
+        imagebuilder:       True
+        virtualization:     True
+        vdo:                True
+        kpatch:             True
+        webconsole:         True
+        wayland:            False
+        leapp:              False
+
+    workshop_extras:
+
+      network_fqdn:         "{{ lookup('file','.././config/gpte-subdomain-internal.txt') }}"
+
+
+
+    ## ----------------------------------------
+    ##    Override default ansible host with
+    ##    one that includes fqdn.  This saves us
+    ##    from having to specify FQDN in host 
+    ##    vars section below.  This assumes all
+    ##    hosts are in the same domain. DUH!
+
+
+
+    ansible_host: "{{ inventory_hostname }}.{{ workshop_vars.network_fqdn }}"
+
+
+
+## ----------------------------------------
+## HOSTGROUPS & VARS
+## ----------------------------------------
+
+
+
+myBastion:
+  hosts:
+    bastion:
+
+myNodes:
+  hosts:
+    node1:
+      ansible_connection: local
+    node2:
+    node3:
+
+myLeapp:
+  hosts:
+    leapp:
