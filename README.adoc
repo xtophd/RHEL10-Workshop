@@ -8,3 +8,8 @@ cd ~
 git clone https://github.com/xtophd/RHEL10-Workshop -b summit-2025 --recurse-submodules
 ----
  
+# Exercise Documentation
+
+Exercise documentation is currently managed in a "showroom" repo.
+
+    * https://github.com/rhpds/showroom-lb1136-rhel-10-hol
