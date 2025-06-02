@@ -12,7 +12,7 @@
         group: root
         mode: "{{ item.mode }}"
       with_items:
-        - {mode: '0744', src: 'workshop-bootc-bootc-ocifile.j2',      dest: '/usr/local/etc/sample-fedora-bootc.ocifile'}
+        - {mode: '0744', src: 'workshop-bootc-fedora-ocifile.j2',      dest: '/usr/local/etc/sample-fedora-bootc.ocifile'}
 
     - name: "rhel10-unit-imagemode : workshop file installs"
       ansible.builtin.template:
