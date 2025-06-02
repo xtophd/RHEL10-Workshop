@@ -7,4 +7,12 @@ Hands-On Exercises to build familiarity with Red Hat Enterprise Linux 10
 cd ~
 git clone https://github.com/xtophd/RHEL10-Workshop -b summit-2025 --recurse-submodules
 ----
+
+
+
+# Can grab the documentation here
+
+
+# View it like this
+podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
  
