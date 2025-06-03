@@ -9,17 +9,23 @@ git clone https://github.com/xtophd/RHEL10-Workshop -b summit-2025 --recurse-sub
 
 # Get the documentation separately (for now)
 
-  * git clone github.com/rhpds/showroom-lb1136-rhel-10-hol
+----
+git clone github.com/rhpds/showroom-lb1136-rhel-10-hol
+----
 
 OR, for the development branch
 
-  * git clone github.com/rhpds/showroom-lb1136-rhel-10-hol -b development
+----
+git clone github.com/rhpds/showroom-lb1136-rhel-10-hol -b development
+----
 
 # Run the pod
 
-  * setenforce 0
-  * cd showroom-lb1136-rhel-10-hol
-  * podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+----
+setenforce 0
+cd showroom-lb1136-rhel-10-hol
+podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+----
 
 Now you can access the docs on port 8080
  
