@@ -2,17 +2,39 @@
 Hands-On Exercises to build familiarity with Red Hat Enterprise Linux 10
 
 # Bastion Setup
-[{format_cmd_exec}]
+
 ----
 cd ~
-git clone https://github.com/xtophd/RHEL10-Workshop -b summit-2025 --recurse-submodules
+git clone https://github.com/xtophd/RHEL10-Workshop --recurse-submodules
+----
+
+OR, for the development branch
+
+----
+cd ~
+git clone https://github.com/xtophd/RHEL10-Workshop -b development --recurse-submodules
 ----
 
 
+# Get the documentation separately (for now)
 
-# Can grab the documentation here
+----
+git clone github.com/rhpds/showroom-lb1136-rhel-10-hol
+----
 
+OR, for the development branch
 
-# View it like this
+----
+git clone github.com/rhpds/showroom-lb1136-rhel-10-hol -b development
+----
+
+# Run the pod
+
+----
+setenforce 0
+cd showroom-lb1136-rhel-10-hol
 podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+----
+
+Now you can access the docs on port 8080
  
