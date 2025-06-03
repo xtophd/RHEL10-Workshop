@@ -2,10 +2,19 @@
 Hands-On Exercises to build familiarity with Red Hat Enterprise Linux 10
 
 # Bastion Setup
+
 ----
 cd ~
-git clone https://github.com/xtophd/RHEL10-Workshop -b summit-2025 --recurse-submodules
+git clone https://github.com/xtophd/RHEL10-Workshop --recurse-submodules
 ----
+
+OR, for the development branch
+
+----
+cd ~
+git clone https://github.com/xtophd/RHEL10-Workshop -b development --recurse-submodules
+----
+
 
 # Get the documentation separately (for now)
 

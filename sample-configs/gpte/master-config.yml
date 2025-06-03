@@ -57,6 +57,7 @@ all:
         stratis:            True
         systemd:            True
         tlog:               True
+        imagemode:          True
         imagebuilder:       True
         virtualization:     True
         vdo:                True
