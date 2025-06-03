@@ -149,7 +149,7 @@ myBastion:
 {% endif %}
     h_plPROF:        "custom_platform"
     h_rsPROF:        "custom_bastion"
-    h_ksPROF:        "rhel92-bootiso"
+    h_ksPROF:        "rhel94-bootiso"
 
 
 
@@ -235,6 +235,7 @@ myNodes:
 
 {% if t_addr_leapp is defined and t_addr_leapp|length %}
     {{ t_name_leapp}}.{{ t_network_basedomain}}:
+      h_ksPROF:        "rhel94-bootiso"
       h_pubIP:         "{{ t_addr_leapp }}"
 {% if t_mac_node4|length %}
       h_pubMAC:        "{{ t_mac_leapp }}"
@@ -259,5 +260,5 @@ myNodes:
 {% endif %}
     h_plPROF:        "custom_platform"
     h_rsPROF:        "custom_bastion"
-    h_ksPROF:        "rhel92-bootiso"
+    h_ksPROF:        "rhel100-bootiso"
 

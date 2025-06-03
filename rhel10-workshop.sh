@@ -55,6 +55,7 @@ case "$1" in
     "bastion"     | \
     "dnf"   | \
     "boom"        | \
+    "bootc"       | \
     "buildah"     | \
     "ebpf"        | \
     "firewalld"   | \
@@ -78,7 +79,7 @@ case "$1" in
         ;;
 
     *)
-        echo "USAGE: rhel10-workshop [ all | bastion | prep | dnf | boom | buildah | ebpf | firewalld | nftables | leapp | osbuild | podman | settings | stratis | systemd | tlog | virt | vdo | wayland | webconsole | kpatch ]"
+        echo "USAGE: rhel10-workshop [ all | bastion | prep | dnf | boom | bootc | buildah | ebpf | firewalld | nftables | leapp | osbuild | podman | settings | stratis | systemd | tlog | virt | vdo | wayland | webconsole | kpatch ]"
         ;;
 
 esac

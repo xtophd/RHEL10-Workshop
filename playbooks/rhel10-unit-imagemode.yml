@@ -1,0 +1,26 @@
+---
+- hosts: node3
+  become: true
+  tasks:
+  
+
+    - name: "rhel10-unit-imagebuilder : workshop script installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      with_items:
+        - {mode: '0744', src: 'workshop-bootc-fedora-ocifile.j2',      dest: '/usr/local/etc/sample-fedora-bootc.ocifile'}
+        - {mode: '0744', src: 'workshop-bootc-toml.j2',                dest: '/usr/local/etc/sample-bootc.toml'}
+
+    - name: "rhel10-unit-imagemode : workshop file installs"
+      ansible.builtin.template:
+        src: "{{ item.src }}"
+        dest: "{{ item.dest }}"
+        owner: root
+        group: root
+        mode: 0744
+      with_items:
+        - {src: 'workshop-checkhost.j2', dest: '/usr/local/bin/workshop-imagemode-checkhost.sh'} 
