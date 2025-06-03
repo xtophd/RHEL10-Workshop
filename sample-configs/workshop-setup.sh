@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export RHEL9_VERSION="92"
+export RHEL_VERSION="10.beta"
 export WORKSHOP_ADMIN_PW=""
 export WORKSHOP_USER_PW=""
 export RHSM_UID=""
@@ -74,7 +74,7 @@ export NAME_LEAPP="leapp"
 ##    Load current answer file
 ##
 
-[[ -e ./config/rhel9-workshop-setup.ans ]] && . ./config/rhel9-workshop-setup.ans
+[[ -e ./config/workshop-setup.ans ]] && . ./config/workshop-setup.ans
 
 
 # ---
@@ -91,7 +91,7 @@ save_settings () {
 ##          and also not saved
 ##
 
-cat > ./config/rhel9-workshop-setup.ans <<EO_ANSWERS
+cat > ./config/workshop-setup.ans <<EO_ANSWERS
 ## Passwords are NEVER saved in this file
 RHEL_VERSION="${RHEL_VERSION}"
 PROJECT_NAME="${PROJECT_NAME}"
@@ -226,11 +226,11 @@ prepare_deployment () {
     case ${ANSIBLE_SOURCE} in 
 
       "RHSM") 
-        ./sample-scripts/rhel9-install-ansible-rhsm.sh 
+        ./sample-scripts/rhel10-install-ansible-rhsm.sh 
         ;;
 
       "EPEL") 
-        ./sample-scripts/rhel9-install-ansible-epel.sh 
+        ./sample-scripts/rhel10-install-ansible-epel.sh 
         ;;
     
       "INSTALLED") 
@@ -250,7 +250,7 @@ prepare_deployment () {
 
 
     echo -n "## Templating configuration files"
-    ansible-playbook sample-configs/rhel9-workshop-setup.yml
+    ansible-playbook sample-configs/workshop-setup.yml
 
     echo -n "## Encrypt the credentials.yml"
 
@@ -811,11 +811,11 @@ network_menu () {
 
 # ---
 
-rhel9_menu () {
+rhel_menu () {
 
     SAVED_PROMPT="$PS3"
 
-    PS3="RHEL9 MENU: "
+    PS3="RHEL MENU: "
 
     current_settings
 
@@ -824,12 +824,12 @@ rhel9_menu () {
       case ${action}  in
 
         "Set Version")
-           select RHEL9_VERSION in "9.0" "9.1" "9.2"
+           select RHEL_VERSION in "10.beta" "10.0" "10.2"
            do
-              case ${RHEL9_VERSION} in
-                "9.0" | \
-                "9.1" | \
-                "9.2" )
+              case ${RHEL_VERSION} in
+                "10beta" | \
+                "100" | \
+                "102" )
                   break ;;
                 "*" )
                   ;;
