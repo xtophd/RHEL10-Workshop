@@ -1,0 +1,11 @@
+
+---
+- hosts: localhost
+  gather_facts: yes
+  tasks:
+  
+  - name: "rhel10-debug: debug hostvars"
+    debug: var=hostvars
+
+  - fail:
+      msg: "STOPPED PROCESSING DUE TO DEBUG FLAG"
