@@ -3,6 +3,10 @@
 - import_playbook: rhel10-settings.yml
   tags: settings
 
+- import_playbook: rhel10-debug.yml
+  tags: ['never', 'debug']
+
+
 #- import_playbook: bastion-dns.yml
 #  when: workshop_vars.bastion.configure_dnsmasq | default(False)
 #  tags: bastion
