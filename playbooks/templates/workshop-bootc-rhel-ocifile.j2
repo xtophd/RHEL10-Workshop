@@ -1,0 +1,6 @@
+FROM quay.io/redhat-gpte/rhel10/rhel-bootc
+
+RUN dnf install -y httpd
+RUN echo "* SUCCESS: hello bootc *" > /var/www/html/index.html
+
+RUN systemctl enable httpd.service
