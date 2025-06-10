@@ -64,7 +64,7 @@ all:
         kpatch:             True
         webconsole:         True
         wayland:            False
-        leapp:              False
+        leapp:              True
 
     workshop_extras:
 
