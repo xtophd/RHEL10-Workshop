@@ -13,7 +13,7 @@
       delay: 5
 
     - name: "rhel10-unit-leapp : create 600MB 'bigfile' to act as Inhibitor"
-      ansible.builtin.command: dd if=/dev/zero of=/boot/bigfile bs=1024 count=60000
+      ansible.builtin.command: dd if=/dev/zero of=/boot/bigfile bs=1024 count=600000
 #      changed_when: false
 
 #    - name: "rhel10-unit-leapp : data file installs"
