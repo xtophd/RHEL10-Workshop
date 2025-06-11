@@ -62,7 +62,7 @@
 
 
 
-- hosts: myNodes
+- hosts: myNodes,myLeapp
   become: true
   tasks:
 
@@ -303,7 +303,7 @@
 
 
 
-- hosts: myNodes
+- hosts: myNodes,myLeapp
   become: true
   tasks:
 
