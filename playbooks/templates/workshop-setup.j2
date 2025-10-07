@@ -1,0 +1,17 @@
+#/bin/bash
+
+## start detached tmux session and run command
+
+tmux new-session -d -s TERM1 'ssh node1 "sudo -i ./RHEL10-Workshop/sample-configs/gpte/workshop-setup.sh"' ; 
+
+## EXAMPLES:
+##   how to send additional commands to tmux
+##
+##     - send 2nd command 'htop -t' ENTER
+##
+##         tmux send 'htop -t' ENTER;          
+##
+##     - open (attach) tmux session.          
+##                               
+##         tmux a;                     
+##
