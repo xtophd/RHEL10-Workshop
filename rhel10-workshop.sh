@@ -4,8 +4,7 @@
 ##     on the control host (ie: bastion)
 ##     CWD =  ~root/RHEL10-Workshop
 
-
-
+export ANSIBLE_LOG_PATH=~/rhel10-workshop-setup.log
 
 ##
 ## Need to install ansible-core and rhel-system-roles
