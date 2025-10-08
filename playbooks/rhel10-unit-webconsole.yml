@@ -12,6 +12,11 @@
       until: result is succeeded
       delay: 5
 
+
+- hosts: node3
+  become: true
+  tasks:
+
     - name: "rhel10-unit-webconsole : workshop executable installs"
       ansible.builtin.template:
         src: "{{ item.src }}"
@@ -31,11 +36,6 @@
         mode: 0744
       with_items:
         - {src: 'workshop-webconsole-samplefile.j2', dest: '/var/tmp/webconsole-sample.txt'} 
-
-
-- hosts: node3
-  become: true
-  tasks:
 
     - name: "rhel10-unit-webconsole : dnf install additional packages (pmlogger in particular)"
       ansible.builtin.dnf: 
