@@ -33,7 +33,7 @@
 
 
 
-- hosts: myBastion,myNodes
+- hosts: myBastion,myNodes,myLeapp
   gather_facts: no 
   roles:
     - role: xtoph_deploy
@@ -55,7 +55,7 @@
 
 
 
-- hosts: myBastion,myNodes
+- hosts: myBastion,myNodes,myLeapp
   gather_facts: no
   roles:
 
@@ -69,10 +69,6 @@
 
 
 ##
-##     For the RHEL 9 Workshop, there are 
-##     no concurrency issues, so proceed 
-##     to deploy everything at once
-##
 ##     NOTE: for same reasons listed above
 ##           don't gather_facts 
 ##
@@ -84,7 +80,17 @@
 
 
 
-- hosts: myBastion,myNodes
+- hosts: myBastion
+  gather_facts: no 
+  roles:
+    - role: xtoph_deploy
+      vars: 
+        xtoph_deploy_action: "deploy"
+      when: xtoph_deploy_cmd == "deploy" or 
+            xtoph_deploy_cmd == "setup+" or 
+            xtoph_deploy_cmd == "redeploy"
+
+- hosts: myNodes,myLeapp
   gather_facts: no 
   serial: 3 
   roles:
@@ -98,15 +104,59 @@
 
 
 ##
+##    After successful cluster deployment,
+##    run final xtoph_deploy post tasks
+##
+
+
+
+- hosts: myBastion,myNodes,myLeapp
+  gather_facts: no 
+  roles:
+    - role: xtoph_deploy
+      vars: 
+        xtoph_deploy_action: "finish"
+      when: xtoph_deploy_cmd == "deploy" or 
+            xtoph_deploy_cmd == "finish" or 
+            xtoph_deploy_cmd == "setup+" or 
+            xtoph_deploy_cmd == "redeploy"
+
+
+
+##
 ##    All nodes should be deployed
 ##    So proceed to configure the workshop 
 ## 
 
 
 
-#- import_playbook: playbooks/rhel10-workshop.yml
-#  when: xtoph_deploy_cmd == "deploy" or 
-#        xtoph_deploy_cmd == "setup+" or 
-#        xtoph_deploy_cmd == "redeploy" or 
-#        xtoph_deploy_cmd == "workshop"
+- import_playbook: playbooks/deploy-setup.yml
+  when: xtoph_deploy_cmd == "deploy" or 
+        xtoph_deploy_cmd == "setup+" or 
+        xtoph_deploy_cmd == "redeploy" or 
+        xtoph_deploy_cmd == "workshop"
+
+
+
+
+
+##
+##    EXAMPLES FROM SATELLITE WORKSHOP
+##
 #
+#- import_playbook: playbooks/deployer-predeploy-tasks.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd == "redeploy"
+#
+#- import_playbook: playbooks/sat6.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "redeploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd=="workshop"
+#
+#- import_playbook: playbooks/deployer-postdeploy-tasks.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd == "redeploy"
+

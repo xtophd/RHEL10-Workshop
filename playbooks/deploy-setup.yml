@@ -1,0 +1,168 @@
+
+## 
+## The RHEL 10 ansbile engine is new and has many
+## incompatible/unavailable builtin modules when compared to
+## earlier releases.  In other words, these playbooks
+## need to run on a RHEL 10 version of ansible.
+##
+## Thus, this playbook selects a target RHEL 10 node in
+## the deployed cluster to pull the git repository 
+## and then launch a local execution of the tasks
+## to set up the workshop.
+## 
+
+
+
+- hosts: myBastion,myNodes,myLeapp
+  become: true
+  tasks:
+
+    ##
+    ##    Load the (vaulted) credentials.yml file
+    ##    if workshopuser_username is not defined
+    ##
+
+    - name: "rhel10-prep : loading credentials"
+      include_vars:
+        file: "../config/credentials.yml"
+      when:
+        - workshop_student_password is undefined
+
+    - name: "rhel10-setup : create ssh directory"
+      file:
+        path: /root/.ssh
+        mode: "0700"
+        state: directory
+
+    
+
+    - name: "Only on {{ groups['myNodes'][0] }}"
+      when: 
+        - inventory_hostname == groups['myNodes'][0]
+      block:
+
+        - name: "rhel10-setup : test deployhost ssh key"
+          stat: path="/root/.ssh/id_rsa.pub"
+          register: test_ssh_key
+    
+        - name: "rhel10-setup : create deployhost ssh key"
+          command: "ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa"
+          when: test_ssh_key.stat.exists == false
+   
+    - name: "rhel10-setup - fetch pub ssh keys from {{ groups['myNodes'][0] }}"
+      delegate_to: "{{ groups['myNodes'][0] }}"
+      ansible.builtin.shell:
+        cmd: cat ~/.ssh/*.pub
+      register: pubkeys_result
+
+    - name: "rhel10-setup - store pub keys in file"
+      blockinfile:
+        dest: "~/.ssh/authorized_keys"
+        insertafter: EOF
+        mode: 0600
+        create: true
+        content: "{{ pubkeys_result.stdout }}"
+
+    - name: "rhel10-setup : clean up known_hosts for root"
+      vars:
+        p_file: "~root/.ssh/known_hosts"
+      shell:
+        cmd: |
+          ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}
+          ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_vars.network_subdomain }}
+      with_items:
+        - "{{ groups['myBastion'] }}"
+        - "{{ groups['myNodes'] }}"
+        - "{{ groups['myLeapp'] }}"
+      ignore_errors: yes
+
+
+    - name: "rhel10-setup: scan and add ssh keys to known_hosts for root"
+      vars:
+        p_file: "~/.ssh/known_hosts"
+      shell:
+        cmd: |
+          ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }} >> {{ p_file }}
+          ssh-keyscan {{ hostvars[item]['inventory_hostname_short'] }}.{{ workshop_vars.network_subdomain }} >> {{ p_file }}
+      with_items:
+        - "{{ groups['myBastion'] }}"
+        - "{{ groups['myNodes'] }}"
+        - "{{ groups['myLeapp'] }}"
+      ignore_errors: yes
+
+
+##
+##    Proceed with other general setup steps on control node
+##
+
+
+- hosts: myNodes[0]
+  become: true
+  tasks:
+
+    - name: "rhel10-setup : install required packages"
+      dnf: 
+        name: git
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+  
+    - name: "rhel10-setup : clone the workshop git repo"
+      ansible.builtin.git:
+        repo: "https://github.com/xtophd/RHEL10-Workshop.git"
+        dest: "/root/RHEL10-Workshop"
+        version: "rhpds-prod"
+        clone: yes
+  
+    - name: "rhel10-setup - create gpte-guid config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/gpte-guid.txt"
+        mode: "400"
+        content: ""
+  
+    - name: "rhel10-setup - create gpte-student config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/gpte-student.txt"
+        mode: "400"
+        content: "{{ workshop_student_uid }}"
+  
+    - name: "rhel10-setup - create gpte-studentpw config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/gpte-studentpw.txt"
+        mode: "400"
+        content: "{{ workshop_student_password }}"
+  
+    - name: "rhel10-setup - create gpte-subdomain-internal config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/gpte-subdomain-internal.txt"
+        mode: "400"
+        content: "{{ workshop_vars.network_subdomain }}"
+    
+#  - name: "rhel10-setup - create gpte-pub-fqdn-shortname config files"
+#    vars:
+#      shortname: "{{ item | regex_replace('\\..*$') }}"
+#      hostname: "{{ item | regex_replace('\\..*$') }}.{{ guid }}{{ subdomain_base_suffix }}"
+#    ansible.builtin.copy:
+#      dest: "/root/RHEL10-Workshop/config/gpte-pub-fqdn-{{ shortname }}.txt"
+#      mode: "400"
+#      content: "{{ hostname }}"
+#    with_items:
+#      - "{{ groups['rhel10_nodes'] }}"
+#      - "{{ groups['bastions'][0] }}"
+  
+    - name: "rhel10-setup - create link to gpte config"
+      file:
+        src: "/root/RHEL10-Workshop/sample-configs/gpte/master-config.yml"
+        dest: "/root/RHEL10-Workshop/config/master-config.yml"
+        state: link
+
+#  - name: "rhel10-setup - run the minimal (prep) workshop playbooks"
+#    ansible.builtin.shell:
+#      cmd: cd /root/RHEL10-Workshop; ./rhel10-workshop.sh prep
+#      
+#  - name: "rhel10-setup - run the full (all) workshop playbooks in tmux detached shell"
+#    ansible.builtin.shell:
+#      cmd: cd /root/RHEL10-Workshop; ./sample-configs/gpte/workshop-setup-tmux.sh
+#
