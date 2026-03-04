@@ -1,0 +1,184 @@
+---
+
+- hosts: localhost
+  tasks:
+
+  - block:
+
+        - name: "rhel10-workshop-setup: load default vars from xtoph_deploy"
+          include_vars:
+            name: '{{ item.varname }}'
+            file: '{{ item.filename }}'
+          when: item.filename|length > 0
+          loop:
+            - { varname: 'xtoph_default_machine',   filename: '../roles/xtoph_deploy/vars/xtoph-default-machine.yml' }
+
+        - name: "rhel10-workshop-setup: deploy configs from templates"
+          template:
+            src: "{{ item.src }}"
+            dest: "{{ item.dest }}"
+            owner: root
+            group: root
+            mode: "{{ item.mode }}"
+          with_items:
+            - {mode: "0744", src: "master-config.j2",          dest: "{{ t_config_dir}}/config/master-config.yml"}
+            - {mode: "0744", src: "credentials.j2",            dest: "{{ t_config_dir}}/config/credentials.yml"}
+            - {mode: "0744", src: "xtoph-deploy.j2",           dest: "{{ t_config_dir}}/config/xtoph-deploy.yml"}
+            - {mode: "0744", src: "xtoph-deploy-kickstart.j2", dest: "{{ t_config_dir}}/config/xtoph-deploy-kickstart.yml"}
+            - {mode: "0744", src: "xtoph-deploy-platform.j2",  dest: "{{ t_config_dir}}/config/xtoph-deploy-platform.yml"}
+            - {mode: "0744", src: "xtoph-deploy-resource.j2",  dest: "{{ t_config_dir}}/config/xtoph-deploy-resource.yml"}
+
+
+
+    vars:
+      - t_config_dir:              "{{ lookup('env','PWD') }}"
+      - t_project_name:            "{{ lookup('env','PROJECT_NAME') }}"
+      - t_workshop_admin_uid:      "{{ lookup('env','WORKSHOP_ADMIN_UID') }}"
+      - t_workshop_admin_pw:       "{{ lookup('env','WORKSHOP_ADMIN_PW') }}"
+      - t_workshop_admin_uid:      "{{ lookup('env','WORKSHOP_USER_UID') }}"
+      - t_workshop_user_pw:        "{{ lookup('env','WORKSHOP_USER_PW') }}"
+      - t_rhsm_uid:                "{{ lookup('env','RHSM_USER_UID') }}"
+      - t_rhsm_pw:                 "{{ lookup('env','RHSM_USER_PW') }}"
+      - t_rhel_version:            "{{ lookup('env','RHEL_VERSION') }}"
+
+      - t_ansible_ip:              "{{ lookup('env','ANSIBLE_IP') }}"
+
+      - t_bastion_dns:             "{{ lookup('env','BASTION_DNS') }}"
+      - t_bastion_dhcp:            "{{ lookup('env','BASTION_DHCP') }}"
+      - t_bastion_haproxy:         "{{ lookup('env','BASTION_HAPROXY') }}"
+      - t_bastion_ntp:             "{{ lookup('env','BASTION_NTP') }}"
+      - t_bastion_nfs:             "{{ lookup('env','BASTION_NFS') }}"
+      - t_bastion_squid:           "{{ lookup('env','BASTION_SQUID') }}"
+      - t_bastion_cockpit:         "{{ lookup('env','BASTION_COCKPIT') }}"
+
+      - t_ldap:                    "{{ lookup('env','LDAP') }}"
+      - t_ldap_uri:                "{{ lookup('env','LDAP_URI') }}"
+      - t_ldap_base_dn:            "{{ lookup('env','LDAP_BASE_DN') }}"
+      - t_ldap_bind_dn:            "{{ lookup('env','LDAP_BIND_DN') }}"
+      - t_ldap_bind_pw:            "{{ lookup('env','LDAP_BIND_PW') }}"
+      - t_ldap_cert:               "{{ lookup('env','LDAP_CERT') }}"
+      - t_ldap_sudo_grp:           "{{ lookup('env','LDAP_SUDO_GRP') }}"
+
+      - t_network_id:              "{{ lookup('env','NETWORK_ID') }}"
+      - t_network_gateway:         "{{ lookup('env','NETWORK_GATEWAY') }}"
+      - t_network_prefix:          "{{ lookup('env','NETWORK_PREFIX') }}"
+      - t_network_netmask:         "{{ lookup('env','NETWORK_NETMASK') }}"
+      - t_network_broadcast:       "{{ lookup('env','NETWORK_BROADCAST') }}"
+      - t_network_basedomain:      "{{ lookup('env','NETWORK_BASEDOMAIN') }}"
+      - t_network_dns_server:      "{{ lookup('env','NETWORK_DNS_SERVER') }}"
+      - t_network_time_server:     "{{ lookup('env','NETWORK_TIME_SERVER') }}"
+
+      - t_virthost_type:           "{{ lookup('env','VIRTHOST_TYPE') }}"
+      - t_virthost_ip:             "{{ lookup('env','VIRTHOST_IP') }}"
+      - t_virthost_mac:            "{{ lookup('env','VIRTHOST_MAC') }}"
+      - t_virthost_pw:             "{{ lookup('env','VIRTHOST_PW') }}"
+      - t_virthost_uid:            "{{ lookup('env','VIRTHOST_UID') }}"
+      - t_virthost_fqdn:           "{{ lookup('env','VIRTHOST_FQDN') }}"
+      - t_virthost_hw:             "{{ lookup('env','VIRTHOST_HW') }}"
+      - t_virthost_ks:             "{{ lookup('env','VIRTHOST_KS') }}"
+      - t_virthost_vtap_dev:       "{{ lookup('env','VIRTHOST_VTAP_DEV') }}"
+      - t_virthost_vtap_vlan_id:   "{{ lookup('env','VIRTHOST_VTAP_VID') }}"
+      - t_virthost_br_dev:         "{{ lookup('env','VIRTHOST_BR_DEV') }}"
+      - t_virthost_br_type:        "{{ lookup('env','VIRTHOST_BR_TYPE') }}"
+      - t_virthost_machine:        "{{ lookup('env','VIRTHOST_MACHINE') }}"
+      - t_virthost_bmc:            "{{ lookup('env','VIRTHOST_BMC') }}"
+      - t_virthost_bmc_uid:        "{{ lookup('env','VIRTHOST_BMC_UID') }}"
+      - t_virthost_bmc_pw:         "{{ lookup('env','VIRTHOST_BMC_PW') }}"
+
+      - t_ovirt_manager_ip:        "{{ lookup('env','OVIRT_MANAGER_IP') }}"
+      - t_ovirt_manager_fqdn:      "{{ lookup('env','OVIRT_MANAGER_FQDN') }}"
+      - t_ovirt_manager_uid:       "{{ lookup('env','OVIRT_MANAGER_UID') }}"
+      - t_ovirt_manager_pw:        "{{ lookup('env','OVIRT_MANAGER_PW') }}"
+      - t_ovirt_datacenter:        "{{ lookup('env','OVIRT_DATACENTER') }}"
+      - t_ovirt_storage_domain:    "{{ lookup('env','OVIRT_STORAGE_DOMAIN') }}"
+      - t_ovirt_network_domain:    "{{ lookup('env','OVIRT_NETWORK_DOMAIN') }}"
+      - t_ovirt_machine:           "{{ lookup('env','OVIRT_MACHINE') }}"
+
+      - t_bmc_uid_default:       "{{ lookup('env','BMC_UID_DEFAULT') }}"
+      - t_bmc_uid_node1:         "{{ lookup('env','BMC_UID_NODE1') }}"
+      - t_bmc_uid_node2:         "{{ lookup('env','BMC_UID_NODE2') }}"
+      - t_bmc_uid_node3:         "{{ lookup('env','BMC_UID_NODE3') }}"
+      - t_bmc_uid_node4:         "{{ lookup('env','BMC_UID_NODE4') }}"
+      - t_bmc_uid_node5:         "{{ lookup('env','BMC_UID_NODE5') }}"
+      - t_bmc_uid_node6:         "{{ lookup('env','BMC_UID_NODE6') }}"
+      - t_bmc_uid_node7:         "{{ lookup('env','BMC_UID_NODE7') }}"
+      - t_bmc_pw_node8:          "{{ lookup('env','BMC_UID_NODE8') }}"
+      - t_bmc_pw_node9:          "{{ lookup('env','BMC_UID_NODE9') }}"
+
+      - t_bmc_pw_default:        "{{ lookup('env','BMC_PW_DEFAULT') }}"
+      - t_bmc_pw_node1:          "{{ lookup('env','BMC_PW_NODE1') }}"
+      - t_bmc_pw_node2:          "{{ lookup('env','BMC_PW_NODE2') }}"
+      - t_bmc_pw_node3:          "{{ lookup('env','BMC_PW_NODE3') }}"
+      - t_bmc_pw_node4:          "{{ lookup('env','BMC_PW_NODE4') }}"
+      - t_bmc_pw_node5:          "{{ lookup('env','BMC_PW_NODE5') }}"
+      - t_bmc_pw_node6:          "{{ lookup('env','BMC_PW_NODE6') }}"
+      - t_bmc_pw_node7:          "{{ lookup('env','BMC_PW_NODE7') }}"
+      - t_bmc_pw_node8:          "{{ lookup('env','BMC_PW_NODE8') }}"
+      - t_bmc_pw_node9:          "{{ lookup('env','BMC_PW_NODE9') }}"
+
+      - t_kopts_node1:           "{{ xtoph_default_machine[t_hw_node1].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node2:           "{{ xtoph_default_machine[t_hw_node2].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node3:           "{{ xtoph_default_machine[t_hw_node3].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node4:           "{{ xtoph_default_machine[t_hw_node4].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node5:           "{{ xtoph_default_machine[t_hw_node5].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node6:           "{{ xtoph_default_machine[t_hw_node6].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node7:           "{{ xtoph_default_machine[t_hw_node7].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node8:           "{{ xtoph_default_machine[t_hw_node8].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_node9:           "{{ xtoph_default_machine[t_hw_node9].kickstart.dev_hints['default']['kernel_opts']  | default('') }}"
+      - t_kopts_ovirt:           "{{ xtoph_default_machine[t_ovirt_machine].kickstart.dev_hints['default']['kernel_opts'] | default('') }}"
+      - t_kopts_virthost:        "{{ xtoph_default_machine[t_virthost_machine].kickstart.dev_hints['default']['kernel_opts'] | default('') }}"
+
+      - t_blkdev_node1:          "{{ xtoph_default_machine[t_hw_node1].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node2:          "{{ xtoph_default_machine[t_hw_node2].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node3:          "{{ xtoph_default_machine[t_hw_node3].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node4:          "{{ xtoph_default_machine[t_hw_node4].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node5:          "{{ xtoph_default_machine[t_hw_node5].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node6:          "{{ xtoph_default_machine[t_hw_node6].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node7:          "{{ xtoph_default_machine[t_hw_node7].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node8:          "{{ xtoph_default_machine[t_hw_node8].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_node9:          "{{ xtoph_default_machine[t_hw_node9].kickstart.dev_hints['default']['blkdev']    | default('--REQUIRED--') }}"
+      - t_blkdev_ovirt:          "{{ xtoph_default_machine[t_ovirt_machine].kickstart.dev_hints['default']['blkdev'] | default('--REQUIRED--') }}"
+      - t_blkdev_virthost:       "{{ xtoph_default_machine[t_virthost_machine].kickstart.dev_hints['default']['blkdev'] | default('--REQUIRED--') }}"
+
+      - t_netdev_node1:          "{{ xtoph_default_machine[t_hw_node1].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node2:          "{{ xtoph_default_machine[t_hw_node2].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node3:          "{{ xtoph_default_machine[t_hw_node3].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node4:          "{{ xtoph_default_machine[t_hw_node4].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node5:          "{{ xtoph_default_machine[t_hw_node5].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node6:          "{{ xtoph_default_machine[t_hw_node6].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node7:          "{{ xtoph_default_machine[t_hw_node7].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node8:          "{{ xtoph_default_machine[t_hw_node8].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_node9:          "{{ xtoph_default_machine[t_hw_node9].kickstart.dev_hints['default']['netdev']    | default('--REQUIRED--') }}"
+      - t_netdev_ovirt:          "{{ xtoph_default_machine[t_ovirt_machine].kickstart.dev_hints['default']['netdev'] | default('--REQUIRED--') }}"
+      - t_netdev_virthost:       "{{ xtoph_default_machine[t_virthost_machine].kickstart.dev_hints['default']['netdev'] | default('--REQUIRED--') }}"
+
+      - t_bootmode_node1:        "{{ xtoph_default_machine[t_hw_node1].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node2:        "{{ xtoph_default_machine[t_hw_node2].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node3:        "{{ xtoph_default_machine[t_hw_node3].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node4:        "{{ xtoph_default_machine[t_hw_node4].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node5:        "{{ xtoph_default_machine[t_hw_node5].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node6:        "{{ xtoph_default_machine[t_hw_node6].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node7:        "{{ xtoph_default_machine[t_hw_node7].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node8:        "{{ xtoph_default_machine[t_hw_node8].boot_mode | default('--REQUIRED--') }}"
+      - t_bootmode_node9:        "{{ xtoph_default_machine[t_hw_node9].boot_mode | default('--REQUIRED--') }}"
+
+      - t_usbdelay_node1:        "{{ xtoph_default_machine[t_hw_node1].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node2:        "{{ xtoph_default_machine[t_hw_node2].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node3:        "{{ xtoph_default_machine[t_hw_node3].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node4:        "{{ xtoph_default_machine[t_hw_node4].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node5:        "{{ xtoph_default_machine[t_hw_node5].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node6:        "{{ xtoph_default_machine[t_hw_node6].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node7:        "{{ xtoph_default_machine[t_hw_node7].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node8:        "{{ xtoph_default_machine[t_hw_node8].usb_storage_delay | default('0') }}"
+      - t_usbdelay_node9:        "{{ xtoph_default_machine[t_hw_node9].usb_storage_delay | default('0') }}"
+
+      - name: "main.yml : special handling for kickstart netdev"
+        set_fact:
+          xtoph_deploy: "{{ xtoph_deploy | combine( {'machine_profile': {'kickstart': {'netdev': t_netdev}}}, recursive=True ) }}"
+        vars:
+          t_netdev:  "{{ xtoph_deploy.machine_profile.kickstart.dev_hints[xtoph_deploy.kickstart_profile.family]['netdev'] | default(xtoph_deploy.machine_profile.kickstart.dev_hints.default.netdev) }}"
+        when:
+          - xtoph_deploy.kickstart_profile.family is defined
+          - xtoph_deploy.machine_profile.kickstart.netdev is defined and xtoph_deploy.machine_profile.kickstart.netdev == ''
+          - xtoph_deploy.kickstart_profile.method != 'simple_cdrom'
+
