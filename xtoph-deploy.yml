@@ -130,9 +130,33 @@
 
 
 
-#- import_playbook: playbooks/rhel10-workshop.yml
-#  when: xtoph_deploy_cmd == "deploy" or 
-#        xtoph_deploy_cmd == "setup+" or 
-#        xtoph_deploy_cmd == "redeploy" or 
-#        xtoph_deploy_cmd == "workshop"
+- import_playbook: playbooks/deploy-setup.yml
+  when: xtoph_deploy_cmd == "deploy" or 
+        xtoph_deploy_cmd == "setup+" or 
+        xtoph_deploy_cmd == "redeploy" or 
+        xtoph_deploy_cmd == "workshop"
+
+
+
+
+
+##
+##    EXAMPLES FROM SATELLITE WORKSHOP
+##
 #
+#- import_playbook: playbooks/deployer-predeploy-tasks.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd == "redeploy"
+#
+#- import_playbook: playbooks/sat6.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "redeploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd=="workshop"
+#
+#- import_playbook: playbooks/deployer-postdeploy-tasks.yml
+#  when: xtoph_deploy_cmd == "deploy" or
+#        xtoph_deploy_cmd == "setup+" or
+#        xtoph_deploy_cmd == "redeploy"
+
