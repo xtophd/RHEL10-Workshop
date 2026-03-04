@@ -3,7 +3,7 @@
 ##
 
 custom_bastion:
-    name: "custom openshift bastion"
+    name: "custom_bastion"
     description: "Custom Bastion Utility Server"
     vcpus:    4
     memsize:  8000
@@ -12,17 +12,36 @@ custom_bastion:
         size: 50 
         hw_storage_profile: default
 
-custom_aap:
-    name: "custom aap"
-    description: "Custom Satellite Server [4cpu,16GB,50GB + 100GB disk]"
+custom_rhel:
+    name: "custom_rhel"
+    description: "Custom RHEL node"
     vcpus:    4
-    memsize:  16000
+    memsize:  8000
+    storage:
+      root:
+        size: 50
+        hw_storage_profile: default
+
+custom_rhel_extra:
+    name: "custom_rhel_extra"
+    description: "Custom RHEL node with extra storage"
+    vcpus:    4
+    memsize:  8000
     storage:
       root:
         size: 50
         hw_storage_profile: default
       extra:
         disk1:
-          size: 100
+          size: 10
+          hw_storage_profile: default
+        disk2:
+          size: 10
+          hw_storage_profile: default
+        disk3:
+          size: 10
+          hw_storage_profile: default
+        disk4:
+          size: 10
           hw_storage_profile: default
 
