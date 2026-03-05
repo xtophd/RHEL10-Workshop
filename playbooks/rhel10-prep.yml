@@ -1,22 +1,4 @@
 #---
-- hosts: all
-  become: true
-  tasks:
-
-  ##
-  ##    Try loading the credentials.yml file
-  ##    if workshopuser_username is not defined
-  ##
-
-  - name: "rhel10-prep : loading credentials"
-    include_vars:
-      file: "../config/credentials.yml"
-    when: 
-      - workshop_vars.set_student_password 
-      - workshop_vars.student_password is undefined
-      - rhel10workshop_student_password is undefined
-
-
 
 - hosts: myBastion
   become: true
@@ -114,41 +96,35 @@
       with_items:
         - {name: 'rhsmcertd'}
 
-#  - name: "rhel10-prep : CMD disable package plugins for subscription-manager"
-#    shell: 
-#      cmd: |          
-#        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/subscription-manager.conf
-#        sed -i 's/enabled=1/enabled=0/g' /etc/package/pluginconf.d/product-id.conf
-                    
     - name: "rhel10-prep : create and/or reset admin user"
       user: 
-        name:     "{{ workshop_admin_uid  }}" 
-        password: "{{ workshop_admin_password | password_hash('sha512') }}"
+        name:     "{{ workshop_vars.admin_name }}" 
+        password: "{{ workshop_vars.admin_password | password_hash('sha512') }}"
         state:    present
       when:
         - workshop_vars.set_admin_password
   
     - name: "rhel10-prep : create and/or reset student user"
       vars:
-        t_passwd: "{{ workshop_vars.student_password | default(rhel10workshop_student_password) }}" 
+        t_passwd: "{{ workshop_vars.student_password }}" 
       user: 
-        name:     "{{ workshop_student_uid  }}" 
-        password: "{{ workshop_student_pw | password_hash('sha512') }}"
+        name:     "{{ workshop_vars.student_name  }}" 
+        password: "{{ workshop_vars.student_password | password_hash('sha512') }}"
         state:    present
       when:
         - workshop_vars.set_student_password
   
     - name: "rhel10-prep : create student group"
       group: 
-        name:     "{{ workshop_student_uid  }}" 
+        name:     "{{ workshop_vars.student_name  }}" 
         state:    present
   
     - name: "rhel10-prep : USER modification"
-      user: name="{{ workshop_student_uid }}" groups="wheel"
+      user: name="{{ workshop_vars.student_name }}" groups="wheel"
   
     - name: "rhel10-prep : Sudo Configuration"
       vars:
-        t_studentName: "{{ workshop_student_uid }}"
+        t_studentName: "{{ workshop_vars.student_name }}"
       template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
@@ -168,7 +144,7 @@
         state: directory
       with_items:
         - "root"
-        - "{{ workshop_student_uid }}"
+        - "{{ workshop_vars.student_name }}"
   
     - name: "rhel10-prep : check ssh known_hosts permissions"
       file:
@@ -179,7 +155,7 @@
         state: touch
       with_items:
         - "root"
-        - "{{ workshop_student_uid }}"
+        - "{{ workshop_vars.student_name }}"
   
     - name: "rhel10-prep : clean up known_hosts for root"
       vars:
@@ -207,11 +183,11 @@
         - "{{ groups['myLeapp'] }}"
       ignore_errors: yes
 
-    - name: "rhel10-prep : clean up known_hosts for {{ workshop_student_uid }}"
+    - name: "rhel10-prep : clean up known_hosts for {{ workshop_vars.student_name }}"
       become: yes
-      become_user: "{{ workshop_student_uid }}"
+      become_user: "{{ workshop_vars.student_name }}"
       vars:
-        p_file: "~{{ workshop_student_uid }}/.ssh/known_hosts"
+        p_file: "~{{ workshop_vars.student_name }}/.ssh/known_hosts"
       shell:
         cmd: |
           ssh-keygen -f {{ p_file }} -R {{ hostvars[item]['inventory_hostname_short'] }}
@@ -250,7 +226,7 @@
  
 
  
-- hosts: myBastion
+- hosts: myBastion,myNodes,myLeapp
   become: true
   tasks:
 
