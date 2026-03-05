@@ -116,6 +116,18 @@
         version: "main"
         clone: yes
   
+    - name: "rhel10-setup - create workshop-admin config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/workshop-admin.txt"
+        mode: "400"
+        content: "{{ workshop_admin_uid | default('') }}"
+
+    - name: "rhel10-setup - create workshop-adminpw config file"
+      ansible.builtin.copy:
+        dest: "/root/RHEL10-Workshop/config/workshop-adminpw.txt"
+        mode: "400"
+        content: "{{ workshop_admin_password | default('') }}"
+
     - name: "rhel10-setup - create workshop-student config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-student.txt"
