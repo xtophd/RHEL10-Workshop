@@ -113,7 +113,7 @@
       ansible.builtin.git:
         repo: "https://github.com/xtophd/RHEL10-Workshop.git"
         dest: "/root/RHEL10-Workshop"
-        version: "rhpds-prod"
+        version: "main"
         clone: yes
   
     - name: "rhel10-setup - create gpte-guid config file"
