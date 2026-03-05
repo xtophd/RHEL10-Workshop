@@ -264,7 +264,7 @@
         dest: "~/.ssh/authorized_keys"
         insertafter: EOF
         mode: 0600
-        marker: "## Access key root@{{groups['myBastion'][0]}}"
+        marker: "## Access key root@{{groups['myBastion'][0]}} saved by {{ inventory_hostname }}"
         owner: "root"
         group: "root"
         create: true
@@ -298,7 +298,7 @@
         dest: "~{{ workshop_vars.student_name }}/.ssh/authorized_keys"
         insertafter: EOF
         mode: 0600
-        marker: "## Access key {{ workshop_vars.student_name }}@{{groups['myBastion'][0]}}"
+        marker: "## Access key {{ workshop_vars.student_name }}@{{groups['myBastion'][0]}} saved by {{ inventory_hostname }}"
         owner: "{{ workshop_vars.student_name }}"
         group: "{{ workshop_vars.student_name }}"
         create: true
