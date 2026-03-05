@@ -116,27 +116,21 @@
         version: "main"
         clone: yes
   
-    - name: "rhel10-setup - create gpte-guid config file"
+    - name: "rhel10-setup - create workshop-student config file"
       ansible.builtin.copy:
-        dest: "/root/RHEL10-Workshop/config/gpte-guid.txt"
-        mode: "400"
-        content: ""
-  
-    - name: "rhel10-setup - create gpte-student config file"
-      ansible.builtin.copy:
-        dest: "/root/RHEL10-Workshop/config/gpte-student.txt"
+        dest: "/root/RHEL10-Workshop/config/workshop-student.txt"
         mode: "400"
         content: "{{ workshop_student_uid }}"
   
-    - name: "rhel10-setup - create gpte-studentpw config file"
+    - name: "rhel10-setup - create workshop-studentpw config file"
       ansible.builtin.copy:
-        dest: "/root/RHEL10-Workshop/config/gpte-studentpw.txt"
+        dest: "/root/RHEL10-Workshop/config/workshop-studentpw.txt"
         mode: "400"
         content: "{{ workshop_student_password }}"
   
-    - name: "rhel10-setup - create gpte-subdomain-internal config file"
+    - name: "rhel10-setup - create workshop-subdomain config file"
       ansible.builtin.copy:
-        dest: "/root/RHEL10-Workshop/config/gpte-subdomain-internal.txt"
+        dest: "/root/RHEL10-Workshop/config/workshop-subdomain.txt"
         mode: "400"
         content: "{{ workshop_vars.network_subdomain }}"
     
@@ -152,9 +146,9 @@
 #      - "{{ groups['rhel10_nodes'] }}"
 #      - "{{ groups['bastions'][0] }}"
   
-    - name: "rhel10-setup - create link to gpte config"
+    - name: "rhel10-setup - create link to simple config"
       file:
-        src: "/root/RHEL10-Workshop/sample-configs/gpte/master-config.yml"
+        src: "/root/RHEL10-Workshop/sample-configs/workshop-only/master-config.yml"
         dest: "/root/RHEL10-Workshop/config/master-config.yml"
         state: link
 
