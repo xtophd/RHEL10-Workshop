@@ -46,6 +46,7 @@
         line: '  ConnectTimeout 3600'
 
 
+
     - name: "rhel10-prep : PACKAGE install WANTED packages"
       when: inventory_hostname not in groups['myLeapp']
       dnf: 
@@ -87,31 +88,52 @@
       with_items:
         - {name: 'rhsmcertd'}
 
-    - name: "rhel10-prep : create and/or reset admin user"
-      user: 
-        name:     "{{ workshop_vars.admin_name }}" 
-        password: "{{ workshop_vars.admin_password | password_hash('sha512') }}"
-        state:    present
-      when:
-        - workshop_vars.set_admin_password
+
+
+    - name: "rhel10-prep: Workshop Admin user management"
+      when: workshop_vars.set_admin_password
+      block:
+    
+          - name: "rhel10-prep : create and/or reset user"
+            user: 
+              name:     "{{ workshop_vars.admin_name }}" 
+              password: "{{ workshop_vars.admin_password | password_hash('sha512') }}"
+              state:    present
+
+          - name: "rhel10-prep : create group"
+            when: workshop_vars.admin_name != "root"
+            group: 
+              name:     "{{ workshop_vars.admin_name  }}" 
+              state:    present
   
-    - name: "rhel10-prep : create and/or reset student user"
-      vars:
-        t_passwd: "{{ workshop_vars.student_password }}" 
-      user: 
-        name:     "{{ workshop_vars.student_name  }}" 
-        password: "{{ workshop_vars.student_password | password_hash('sha512') }}"
-        state:    present
-      when:
-        - workshop_vars.set_student_password
+          - name: "rhel10-prep : add user to wheel"
+            when: workshop_vars.admin_name != "root"
+            user: 
+              name:   "{{ workshop_vars.admin_name }}" 
+              groups: "wheel"
   
-    - name: "rhel10-prep : create student group"
-      group: 
-        name:     "{{ workshop_vars.student_name  }}" 
-        state:    present
   
-    - name: "rhel10-prep : USER modification"
-      user: name="{{ workshop_vars.student_name }}" groups="wheel"
+    - name: "rhel10-prep: Workshop Student user management"
+      when: workshop_vars.set_student_password
+      block:
+    
+          - name: "rhel10-prep : create and/or reset student user"
+            user: 
+              name:     "{{ workshop_vars.student_name  }}" 
+              password: "{{ workshop_vars.student_password | password_hash('sha512') }}"
+              state:    present
+  
+          - name: "rhel10-prep : create student group"
+            group: 
+              name:     "{{ workshop_vars.student_name  }}" 
+              state:    present
+  
+          - name: "rhel10-prep : add user to wheel"
+            when: workshop_vars.admin_name != "root"
+            user: 
+              name:   "{{ workshop_vars.student_name }}" 
+              groups: "wheel"
+  
   
     - name: "rhel10-prep : Sudo Configuration"
       vars:
@@ -125,6 +147,8 @@
       with_items:
         - {src: 'sudoers.j2', dest: '/etc/sudoers.d/rhel10-workshop'}
         - {src: 'sudoers-student.j2', dest: '/etc/sudoers.d/{{ workshop_vars.student_name }}'}
+
+
 
     - name: "rhel10-prep : check ssh directory permissions for root & {{ workshop_vars.student_name }}"
       file:
@@ -175,7 +199,6 @@
       ignore_errors: yes
 
     - name: "rhel10-prep : clean up known_hosts for {{ workshop_vars.student_name }}"
-      become: yes
       become_user: "{{ workshop_vars.student_name }}"
       vars:
         p_file: "~{{ workshop_vars.student_name }}/.ssh/known_hosts"
@@ -190,7 +213,6 @@
       ignore_errors: yes
   
     - name: "rhel10-prep: scan and add ssh keys to known_hosts for {{ workshop_vars.student_name }}"
-      become: yes
       become_user: "{{ workshop_vars.student_name }}"
       vars:
         p_file: "~{{ workshop_vars.student_name }}/.ssh/known_hosts"
@@ -217,67 +239,66 @@
  
 
  
-    - name: "rhel10-prep : test for root ssh key on bastion"
-      when: inventory_hostname in groups['myBastion']
-      stat: 
-        path: /root/.ssh/id_rsa
-      register: root_sshkey
-  
-    - name: "rhel10-prep : create ssh key for root on bastion"
-      when: 
-        - inventory_hostname in groups['myBastion']
-        - not root_sshkey.stat.exists
-      shell: 
-        cmd: |          
-          ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+    - name: "rhel10-setup: root ssh keys from {{ groups['myBastion'][0] }} to all nodes"
+      when:
+        - inventory_hostname == groups['myBastion'][0]
+      block:
 
-    - name: "rhel10-prep : save local temp copy of root ssh key from bastion"
-      fetch:
-        src:  "/root/.ssh/id_rsa.pub"
-        dest: "../config/root_sshkey.temp"
-        flat: true
-  
-    - name: "rhel10-prep : test for {{ workshop_vars.student_name }} ssh key"
-      stat: 
-        path: "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa"
-      register: student_sshkey
-  
-    - name: "rhel10-prep : create ssh key for {{ workshop_vars.student_name }}"
-      become: true
-      become_user: "{{ workshop_vars.student_name }}"
-      shell: 
-        cmd: |          
-          ssh-keygen -t rsa -N "" -f "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa"
-      when: not student_sshkey.stat.exists
-  
-    - name: "rhel10-prep : save temp copy of {{ workshop_vars.student_name }} ssh key"
-      fetch:
-        src:  "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa.pub"
-        dest: "../config/{{ workshop_vars.student_name }}_sshkey.temp"
-        flat: true
+          - name: "rhel10-setup : test ssh key"
+            stat: 
+              path: "/root/.ssh/id_rsa.pub"
+            register: test_ssh_key
+
+          - name: "rhel10-setup : create ssh key"
+            command: "ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa"
+            when: test_ssh_key.stat.exists == false
+
+    - name: "rhel10-prep: fetch pub ssh keys from {{ groups['myBastion'][0] }}"
+      delegate_to: "{{ groups['myBastion'][0] }}"
+      ansible.builtin.shell:
+        cmd: cat ~/.ssh/*.pub
+      register: pubkeys_result
+
+    - name: "rhel10-setup: store pub key(s) in authorized_keys"
+      blockinfile:
+        dest: "~/.ssh/authorized_keys"
+        insertafter: EOF
+        owner: "root"
+        group: "root"
+        mode: 0600
+        create: true
+        content: "{{ pubkeys_result.stdout }}"
 
 
 
-    - name: "rhel10-prep : install authorized_keys for root"
-      when: inventory_hostname not in groups['myBastion']
-      vars:
-        t_key:     "{{ lookup('file','../config/{{item.user}}_sshkey.temp') }}"
-      lineinfile:
-        create:  true
-        owner:   "{{ item.user }}"
-        group:   "{{ item.user }}"
-        path:    "{{ item.path }}"
-        line:    "{{ t_key }}"
-        mode:    "0600"
-      with_items:
-        - { user: 'root', path: '/root/.ssh/authorized_keys' }
-        - { user: '{{ workshop_vars.student_name }}', path: '/home/{{ workshop_vars.student_name }}/.ssh/authorized_keys' }
-  
-  
-    - name: "rhel10-prep : remove local temp copy of pub ssh key"
-      delegate_to: localhost
-      file: path="../config/{{ item }}_sshkey.temp" state=absent
-      with_items:
-        - "root"
-        - "{{ workshop_vars.student_name }}"
+    - name: "rhel10-setup: {{ workshop_vars.student_name }} ssh keys from {{ groups['myBastion'][0] }} to all nodes"
+      when:
+        - inventory_hostname == groups['myBastion'][0]
+      block:
+
+          - name: "rhel10-setup : test ssh key"
+            stat: 
+              path: "~{{ workshop_vars.student_name }}/.ssh/id_rsa.pub"
+            register: test_ssh_key
+
+          - name: "rhel10-setup : create ssh key"
+            become_user: "{{ workshop_vars.student_name }}"
+            command: "ssh-keygen -t rsa -b 2048 -N '' -f ~{{ workshop_vars.student_name }}/.ssh/id_rsa"
+            when: test_ssh_key.stat.exists == false
+
+    - name: "rhel10-prep: fetch pub ssh keys from {{ groups['myBastion'][0] }}"
+      delegate_to: "{{ groups['myBastion'][0] }}"
+      ansible.builtin.shell:
+        cmd: cat ~{{ workshop_vars.student_name }}/.ssh/*.pub
+      register: pubkeys_result
+
+    - name: "rhel10-setup: store pub key(s) in authorized_keys"
+      blockinfile:
+        dest: "~{{ workshop_vars.student_name }}/.ssh/authorized_keys"
+        insertafter: EOF
+        mode: 0600
+        owner: "{{ workshop_vars.student_name }}"
+        group: "{{ workshop_vars.student_name }}"
+        create: true
+        content: "{{ pubkeys_result.stdout }}"
 
