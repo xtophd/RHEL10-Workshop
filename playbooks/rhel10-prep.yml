@@ -263,9 +263,10 @@
       blockinfile:
         dest: "~/.ssh/authorized_keys"
         insertafter: EOF
+        mode: 0600
+        marker: "Access key root@{{groups['myBastion'][0]}}"
         owner: "root"
         group: "root"
-        mode: 0600
         create: true
         content: "{{ pubkeys_result.stdout }}"
 
@@ -297,6 +298,7 @@
         dest: "~{{ workshop_vars.student_name }}/.ssh/authorized_keys"
         insertafter: EOF
         mode: 0600
+        marker: "Access key {{ workshop_vars.student_name }}@{{groups['myBastion'][0]}}"
         owner: "{{ workshop_vars.student_name }}"
         group: "{{ workshop_vars.student_name }}"
         create: true
