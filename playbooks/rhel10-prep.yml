@@ -1,10 +1,11 @@
 #---
 
-- hosts: myBastion
+- hosts: myBastion,myNodes,myLeapp
   become: true
   tasks:
 
-    - name: "rhel10-prep : TEMPLATE /etc/motd (incomplete)"
+    - name: "rhel10-prep : TEMPLATE /etc/motd (incomplete) on bastion"
+      when: inventory_hostname in groups['myBastion']
       template:
         src: motd-incomplete.j2
         dest: /etc/motd
@@ -12,16 +13,17 @@
         group: root
         mode: 0644  
   
-    - name: "rhel10-prep : PACKAGE install WANTED packages"
-      dnf: 
-        name: tmux,policycoreutils-python-utils,nmap-ncat
-        state: installed
-      register: result
-      retries: 10
-      until: result is succeeded
-      delay: 5
+    - name: "rhel10-prep : TEMPLATE /etc/motd (generic) on other nodes"
+      when: inventory_hostname not in groups['myBastion']
+      template:
+        src: motd-generic.j2
+        dest: /etc/motd
+        owner: root
+        group: root
+        mode: 0644  
   
     - name: "rhel10-prep : workshop file installs"
+      when: inventory_hostname in groups['myBastion']
       template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
@@ -33,6 +35,7 @@
         - {mode: '0755', src: 'workshop-pulldocs.j2',        dest: '/usr/local/bin/workshop-pulldocs.sh'}
   
     - name: "rhel10-prep: changing SSH connection timeout"
+      when: inventory_hostname in groups['myBastion']
       ansible.builtin.lineinfile:
         path: "/home/{{ workshop_vars.student_name }}/.ssh/config"
         create: true
@@ -43,32 +46,20 @@
         line: '  ConnectTimeout 3600'
 
 
-
-- hosts: myNodes,myLeapp
-  become: true
-  tasks:
-
-    - name: "rhel10-prep : TEMPLATE /etc/motd"
-      template:
-        src: motd-generic.j2
-        dest: /etc/motd
-        owner: root
-        group: root
-        mode: 0644  
-  
-    - name: "rhel10-prep : dnf remove UN-WANTED packages"
+    - name: "rhel10-prep : PACKAGE install WANTED packages"
+      when: inventory_hostname not in groups['myLeapp']
       dnf: 
-        name: insights-client 
-        state: absent
+        name: tmux,policycoreutils-python-utils,nmap-ncat,firewalld
+        state: installed
       register: result
       retries: 10
       until: result is succeeded
       delay: 5
   
-    - name: "rhel10-prep : dnf install WANTED packages"
+    - name: "rhel10-prep : dnf remove UN-WANTED packages"
       dnf: 
-        name: tmux,policycoreutils-python-utils,firewalld 
-        state: installed
+        name: insights-client 
+        state: absent
       register: result
       retries: 10
       until: result is succeeded
@@ -135,7 +126,7 @@
         - {src: 'sudoers.j2', dest: '/etc/sudoers.d/rhel10-workshop'}
         - {src: 'sudoers-student.j2', dest: '/etc/sudoers.d/{{ workshop_vars.student_name }}'}
 
-    - name: "rhel10-prep : check ssh directory permissions"
+    - name: "rhel10-prep : check ssh directory permissions for root & {{ workshop_vars.student_name }}"
       file:
         path: ~{{ item }}/.ssh
         mode: "0700"
@@ -146,7 +137,7 @@
         - "root"
         - "{{ workshop_vars.student_name }}"
   
-    - name: "rhel10-prep : check ssh known_hosts permissions"
+    - name: "rhel10-prep : check ssh known_hosts permissions for root & {{ workshop_vars.student_name }}"
       file:
         path: "~{{ item }}/.ssh/known_hosts"
         mode: "0700"
@@ -226,20 +217,19 @@
  
 
  
-- hosts: myBastion,myNodes,myLeapp
-  become: true
-  tasks:
-
     - name: "rhel10-prep : test for root ssh key on bastion"
+      when: inventory_hostname in groups['myBastion']
       stat: 
         path: /root/.ssh/id_rsa
       register: root_sshkey
   
     - name: "rhel10-prep : create ssh key for root on bastion"
+      when: 
+        - inventory_hostname in groups['myBastion']
+        - not root_sshkey.stat.exists
       shell: 
         cmd: |          
           ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
-      when: not root_sshkey.stat.exists
 
     - name: "rhel10-prep : save local temp copy of root ssh key from bastion"
       fetch:
@@ -248,8 +238,6 @@
         flat: true
   
     - name: "rhel10-prep : test for {{ workshop_vars.student_name }} ssh key"
-      become: true
-      become_user: "{{ workshop_vars.student_name }}"
       stat: 
         path: "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa"
       register: student_sshkey
@@ -263,8 +251,6 @@
       when: not student_sshkey.stat.exists
   
     - name: "rhel10-prep : save temp copy of {{ workshop_vars.student_name }} ssh key"
-      become: true
-      become_user: "{{ workshop_vars.student_name }}"
       fetch:
         src:  "/home/{{ workshop_vars.student_name }}/.ssh/id_rsa.pub"
         dest: "../config/{{ workshop_vars.student_name }}_sshkey.temp"
@@ -272,12 +258,8 @@
 
 
 
-
-- hosts: myNodes,myLeapp
-  become: true
-  tasks:
-
     - name: "rhel10-prep : install authorized_keys for root"
+      when: inventory_hostname not in groups['myBastion']
       vars:
         t_key:     "{{ lookup('file','../config/{{item.user}}_sshkey.temp') }}"
       lineinfile:
