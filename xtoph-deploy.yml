@@ -130,7 +130,7 @@
 
 
 
-- import_playbook: playbooks/deploy-setup.yml
+- import_playbook: playbooks/postdeployment-setup.yml
   when: xtoph_deploy_cmd == "deploy" or 
         xtoph_deploy_cmd == "setup+" or 
         xtoph_deploy_cmd == "redeploy" or 

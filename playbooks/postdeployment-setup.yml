@@ -28,7 +28,7 @@
       when:
         - workshop_student_password is undefined
 
-    - name: "rhel10-setup : create ssh directory"
+    - name: "postdeployment-setup : create ssh directory"
       file:
         path: /root/.ssh
         mode: "0700"
@@ -41,21 +41,21 @@
         - inventory_hostname == groups['myNodes'][0]
       block:
 
-        - name: "rhel10-setup : test deployhost ssh key"
+        - name: "postdeployment-setup : test deployhost ssh key"
           stat: path="/root/.ssh/id_rsa.pub"
           register: test_ssh_key
     
-        - name: "rhel10-setup : create deployhost ssh key"
+        - name: "postdeployment-setup : create deployhost ssh key"
           command: "ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa"
           when: test_ssh_key.stat.exists == false
    
-    - name: "rhel10-setup - fetch pub ssh keys from {{ groups['myNodes'][0] }}"
+    - name: "postdeployment-setup - fetch pub ssh keys from {{ groups['myNodes'][0] }}"
       delegate_to: "{{ groups['myNodes'][0] }}"
       ansible.builtin.shell:
         cmd: cat ~/.ssh/*.pub
       register: pubkeys_result
 
-    - name: "rhel10-setup - store pub keys in file"
+    - name: "postdeployment-setup - store pub keys in file"
       blockinfile:
         dest: "~/.ssh/authorized_keys"
         insertafter: EOF
@@ -64,7 +64,7 @@
         create: true
         content: "{{ pubkeys_result.stdout }}"
 
-    - name: "rhel10-setup : clean up known_hosts for root"
+    - name: "postdeployment-setup : clean up known_hosts for root"
       vars:
         p_file: "~root/.ssh/known_hosts"
       shell:
@@ -78,7 +78,7 @@
       ignore_errors: yes
 
 
-    - name: "rhel10-setup: scan and add ssh keys to known_hosts for root"
+    - name: "postdeployment-setup: scan and add ssh keys to known_hosts for root"
       vars:
         p_file: "~/.ssh/known_hosts"
       shell:
@@ -101,7 +101,7 @@
   become: true
   tasks:
 
-    - name: "rhel10-setup : install required packages"
+    - name: "postdeployment-setup : install required packages"
       dnf: 
         name: git
         state: installed
@@ -110,44 +110,44 @@
       until: result is succeeded
       delay: 5
   
-    - name: "rhel10-setup : clone the workshop git repo"
+    - name: "postdeployment-setup : clone the workshop git repo"
       ansible.builtin.git:
         repo: "https://github.com/xtophd/RHEL10-Workshop.git"
         dest: "/root/RHEL10-Workshop"
         version: "main"
         clone: yes
   
-    - name: "rhel10-setup - create workshop-admin config file"
+    - name: "postdeployment-setup - create workshop-admin config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-admin.txt"
         mode: "400"
         content: "{{ workshop_admin_uid | default('') }}"
 
-    - name: "rhel10-setup - create workshop-adminpw config file"
+    - name: "postdeployment-setup - create workshop-adminpw config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-adminpw.txt"
         mode: "400"
         content: "{{ workshop_admin_password | default('') }}"
 
-    - name: "rhel10-setup - create workshop-student config file"
+    - name: "postdeployment-setup - create workshop-student config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-student.txt"
         mode: "400"
         content: "{{ workshop_student_uid }}"
   
-    - name: "rhel10-setup - create workshop-studentpw config file"
+    - name: "postdeployment-setup - create workshop-studentpw config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-studentpw.txt"
         mode: "400"
         content: "{{ workshop_student_password }}"
   
-    - name: "rhel10-setup - create workshop-subdomain config file"
+    - name: "postdeployment-setup - create workshop-subdomain config file"
       ansible.builtin.copy:
         dest: "/root/RHEL10-Workshop/config/workshop-subdomain.txt"
         mode: "400"
         content: "{{ workshop_vars.network_subdomain }}"
     
-#  - name: "rhel10-setup - create gpte-pub-fqdn-shortname config files"
+#  - name: "postdeployment-setup - create gpte-pub-fqdn-shortname config files"
 #    vars:
 #      shortname: "{{ item | regex_replace('\\..*$') }}"
 #      hostname: "{{ item | regex_replace('\\..*$') }}.{{ guid }}{{ subdomain_base_suffix }}"
@@ -159,17 +159,17 @@
 #      - "{{ groups['rhel10_nodes'] }}"
 #      - "{{ groups['bastions'][0] }}"
   
-    - name: "rhel10-setup - create link to simple config"
+    - name: "postdeployment-setup - create link to simple config"
       file:
         src: "/root/RHEL10-Workshop/sample-configs/workshop-only/master-config.yml"
         dest: "/root/RHEL10-Workshop/config/master-config.yml"
         state: link
 
-#  - name: "rhel10-setup - run the minimal (prep) workshop playbooks"
+#  - name: "postdeployment-setup - run the minimal (prep) workshop playbooks"
 #    ansible.builtin.shell:
 #      cmd: cd /root/RHEL10-Workshop; ./rhel10-workshop.sh prep
 #      
-#  - name: "rhel10-setup - run the full (all) workshop playbooks in tmux detached shell"
+#  - name: "postdeployment-setup - run the full (all) workshop playbooks in tmux detached shell"
 #    ansible.builtin.shell:
 #      cmd: cd /root/RHEL10-Workshop; ./sample-configs/gpte/workshop-setup-tmux.sh
 #

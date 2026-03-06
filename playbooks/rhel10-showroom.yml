@@ -17,7 +17,7 @@
       ansible.builtin.git:
         repo: "http://github.com/rhpds/showroom-lb1136-rhel-10-hol"
         dest: "/root/showroom-lb1136-rhel-10-hol
-        version: "main"
+        version: "Summit-2026"
         clone: yes
 
     - name: "rhel10-showroom: run the showroom pod on port 8080"
