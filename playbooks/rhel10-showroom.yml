@@ -13,12 +13,20 @@
       until: result is succeeded
       delay: 5
 
-    - name: "rhel10-showroom: clone the showroom git repo"
+    - name: "rhel10-showroom: kill any running containers of antora"
+      ansible.builtin.shell:
+        cmd: |
+          if $(podman ps --noheading | grep antora); then
+            podman kill antora
+          fi
+
+    - name: "rhel10-showroom: clone/update the showroom git repo"
       ansible.builtin.git:
         repo: "http://github.com/rhpds/showroom-lb1136-rhel-10-hol"
         dest: "~root/rhel10-workshop-showroom"
         version: "Summit-2026"
         clone: yes
+        update: true
 
     - name: "rhel10-showroom: run the showroom pod on port 8080"
       ansible.builtin.shell:
