@@ -65,6 +65,7 @@ all:
         kpatch:             True
         webconsole:         True
         wayland:            False
+        showroom:           False
         leapp:              True
 
 

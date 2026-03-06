@@ -102,6 +102,10 @@
   when: workshop_vars.enable_unit.webconsole
   tags: webconsole
 
+- import_playbook: rhel10-showroom.yml
+  when: workshop_vars.enable_unit.showroom
+  tags: showroom
+
 - import_playbook: rhel10-finish.yml
   tags: finish
 

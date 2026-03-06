@@ -173,3 +173,8 @@
 #    ansible.builtin.shell:
 #      cmd: cd /root/RHEL10-Workshop; ./sample-configs/gpte/workshop-setup-tmux.sh
 #
+
+- hosts: myBastion
+  become: true
+  tasks:
+

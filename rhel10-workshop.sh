@@ -73,13 +73,14 @@ case "$1" in
     "vdo"         | \
     "wayland"     | \
     "webconsole"  | \
+    "showroom"    | \
     "kpatch")
 
         time  ansible-playbook  ${askVaultPass} -i ${myInventory} --tags $1 ./playbooks/rhel10-workshop.yml
         ;;
 
     *)
-        echo "USAGE: rhel10-workshop [ all | debug | bastion | prep | dnf | boom | bootc | buildah | ebpf | firewalld | nftables | leapp | osbuild | podman | settings | stratis | systemd | tlog | virt | vdo | wayland | webconsole | kpatch ]"
+        echo "USAGE: rhel10-workshop [ all | debug | bastion | prep | dnf | boom | bootc | buildah | ebpf | firewalld | nftables | leapp | osbuild | podman | settings | stratis | systemd | tlog | virt | vdo | wayland | webconsole | showroom | kpatch ]"
         ;;
 
 esac
