@@ -1,0 +1,27 @@
+#---
+
+- hosts: myBastion
+  become: true
+  tasks:
+
+    - name: "rhel10-showroom: install required packages"
+      dnf:
+        name: git,podman
+        state: installed
+      register: result
+      retries: 10
+      until: result is succeeded
+      delay: 5
+
+    - name: "rhel10-showroom: clone the showroom git repo"
+      ansible.builtin.git:
+        repo: "http://github.com/rhpds/showroom-lb1136-rhel-10-hol"
+        dest: "/root/showroom-lb1136-rhel-10-hol
+        version: "main"
+        clone: yes
+
+    - name: "rhel10-showroom: run the showroom pod on port 8080"
+      ansible.builtin.shell:
+        chdir: ~/root/showroom-lb1136-rhel-10-hol
+        cmd: podman run --rm --name antora -v $PWD:/antora -p 8080:8080 -i -t ghcr.io/juliaaano/antora-viewer
+
