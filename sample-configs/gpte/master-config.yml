@@ -39,8 +39,8 @@ all:
       student_name:         "{{ lookup('file','.././config/gpte-student.txt') }}"
       student_password:     "{{ lookup('file','.././config/gpte-studentpw.txt') }}"
 
-      admin_name:           "root"
-      #admin_password:       ""
+      admin_name:           "{{ lookup('file','.././config/gpte-admin.txt') }}"
+      admin_password:       "{{ lookup('file','.././config/gpte-adminpw.txt') }}"
 
       bastion:
         configure_dnsmasq:  False

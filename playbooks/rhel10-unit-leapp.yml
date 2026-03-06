@@ -11,28 +11,27 @@
       retries: 10
       until: result is succeeded
       delay: 5
+ 
+    - name: "rhel10-unit-leapp : calculate required /boot disk constipation factor"
+      vars:
+        target_percentage: 90
+      ansible.builtin.shell:
+        cmd: |
+            FS_TOTAL=`df --output=size -B 256  /boot | sed 1d`; 
+            FS_USED=`df --output=used -B 256  /boot | sed 1d`; 
+            echo "$(( ( $FS_TOTAL * {{ target_percentage }} / 100 ) - $FS_USED ))"
+      register: disk_pressure
 
-    - name: "rhel10-unit-leapp : create 600MB 'bigfile' to act as Inhibitor"
-      ansible.builtin.command: dd if=/dev/zero of=/boot/bigfile bs=1024 count=600000
-#      changed_when: false
+    - name: "rhel10-unit-leapp : result of disk pressure analysis" 
+      ansible.builtin.debug: 
+        msg: "Calculus results reveal we need to add {{ disk_pressure.stdout }} 256k blocks of garbage"
 
-#    - name: "rhel10-unit-leapp : data file installs"
-#      vars:
-#        t_filename: "leapp-data17.tar.gz"
-#        t_destpath: "/usr/local/src"
-#        t_src_url:  "https://people.redhat.com/cdoerbec/VQRlX6Ggks"
-#      ansible.builtin.get_url:
-#        url: "{{ t_src_url }}/{{ t_filename }}"
-#        dest: "{{ t_destpath }}/{{ t_filename }}"
-#        owner: root
-#        group: root
-#        mode: "0644"
-#        timeout: 60
-#        force: no
-#      register: leapp_download
-#      until: leapp_download is not failed
-#      retries: 5
-#      ignore_errors: yes
+    - name: "rhel10-unit-leapp : create massive dump to act as Leapp Pre-Upgrade Inhibitor"
+      when: disk_pressure.stdout|int > 0
+      ansible.builtin.shell:
+        cmd: |
+          dd if=/dev/zero of=/boot/bigfile bs=256 count={{ disk_pressure.stdout }}
+      
 
     - name: "rhel10-unit-leapp : workshop file installs"
       ansible.builtin.template:
