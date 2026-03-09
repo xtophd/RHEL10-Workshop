@@ -318,7 +318,7 @@ rhel_menu () {
           ;;
 
         "Set RHSM UID/PW")
-          set_uidpw "Workshop User"  "RHSM_USER_UID"      "RHSM_USER_PW"
+          set_uidpw "RHSM UID/PW"  "RHSM_USER_UID"      "RHSM_USER_PW"
           ;;
 
         "Set Default BMC UID/PW")

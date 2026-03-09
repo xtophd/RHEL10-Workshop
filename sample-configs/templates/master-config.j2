@@ -15,7 +15,7 @@ all:
   vars:
 
     ## ----------------------------------------
-    ##    Establish defaults for virthost type
+    ##    Defaults for virthost type
 
 {%if lookup('env',"VIRTHOST_TYPE") == "libvirt" %}
     h_hwPROF:        "kvm_vda_q35"
@@ -153,6 +153,9 @@ myDeployhost:
   hosts:
     deployer:
       h_netIP:       {% raw %}"{{ xtoph_vars.deployhost_ip }}"{% endraw %}
+{% if t_virthost_fqdn == "localhost.localdomain" %}
+      h_plPROF:         "custom_platform"
+{% endif %}
 
   vars:
     ansible_connection: local
