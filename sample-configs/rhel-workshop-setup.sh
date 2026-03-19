@@ -31,8 +31,8 @@ export WORKSHOP_ADMIN_PW
 export WORKSHOP_STUDENT_UID="cloud-user"
 export WORKSHOP_STUDENT_PW
 
-export RHSM_USER_UID
-export RHSM_USER_PW
+export RHSM_UID
+export RHSM_PW
 
 ##
 ##    ESTABLISH SOME ADDITIONAL DEFAULTS
@@ -93,8 +93,8 @@ cat <<EOVARS
     WORKSHOP_STUDENT_UID="${WORKSHOP_STUDENT_UID}"
     # WORKSHOP_STUDENT_PW=""
 
-    RHSM_USER_UID="${RHSM_USER_UID}"
-    # RHSM_USER_PW=""
+    RHSM_UID="${RHSM_UID}"
+    # RHSM_PW=""
 
 EOVARS
 
@@ -161,8 +161,8 @@ rhel_settings () {
     echo "[ RHEL ]"
     echo "    Version          ... ${RHEL_VERSION}"
     echo "    Workshop Admin   ... ${WORKSHOP_ADMIN_UID} / ${WORKSHOP_ADMIN_PW:+**********}" 
-    echo "    Workshop Student ... ${WORKSHOP_USER_UID} / ${WORKSHOP_USER_PW:+**********}" 
-    echo "    RHSM User        ... ${RHSM_USER_UID} / ${RHSM_USER_PW:+**********}" 
+    echo "    Workshop Student ... ${WORKSHOP_STUDENT_UID} / ${WORKSHOP_STUDENT_PW:+**********}" 
+    echo "    RHSM User        ... ${RHSM_UID} / ${RHSM_PW:+**********}" 
     echo "    BMC Defaults     ... ${BMC_UID_DEFAULT} / ${BMC_PW_DEFAULT:+**********}" 
 }
 
@@ -318,7 +318,7 @@ rhel_menu () {
           ;;
 
         "Set RHSM UID/PW")
-          set_uidpw "RHSM UID/PW"  "RHSM_USER_UID"      "RHSM_USER_PW"
+          set_uidpw "RHSM UID/PW"  "RHSM_UID"      "RHSM_PW"
           ;;
 
         "Set Default BMC UID/PW")

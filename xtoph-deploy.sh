@@ -46,7 +46,8 @@ case "$1" in
     "git-updates")
 
         git pull
-        cd roles/xtoph_deploy; git pull
+        ( cd ./roles/xtoph_deploy; pwd ; git pull )
+        ( cd ./xtoph-setup; pwd ; git pull )
         ;;
 
     *)
