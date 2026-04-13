@@ -11,7 +11,19 @@
       retries: 10
       until: result is succeeded
       delay: 5
-
+      
+    - name: Change endpoint to Demo.RH Sat server
+      ansible.builtin.lineinfile:
+        path: /etc/xdg/command-line-assistant/config.toml          # Specify the path to your file
+        regexp: '^endpoint'                                        # The regular expression to match the line
+        line: 'endpoint = "https://demosat-ha.infra.demo.redhat.com/api/lightspeed/v1"'            # The new content of the line
+        backup: yes                                                # (Optional) creates a backup file before modification
+ 
+    - name: Restart the clad service
+      ansible.builtin.systemd_service:
+        name: clad
+        state: restarted
+        
     - name: "rhel10-unit-lightspeed : workshop script installs"
       template:
         src: "{{ item.src }}"
