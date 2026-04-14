@@ -90,6 +90,24 @@
             xtoph_deploy_cmd == "setup+" or 
             xtoph_deploy_cmd == "redeploy"
 
+- hosts: myBastion, myNodes, myLeapp
+  gather_facts: no 
+  roles:
+    - role: xtoph_bastion
+      when: xtoph_deploy_cmd == "deploy" or 
+            xtoph_deploy_cmd == "setup+" or 
+            xtoph_deploy_cmd == "redeploy"
+
+
+
+##
+##
+##      NOTE: Now we proceed to deploy the 
+##            remainder of the nodes
+##
+
+
+
 - hosts: myNodes,myLeapp
   gather_facts: no 
   serial: 3 

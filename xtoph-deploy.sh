@@ -48,6 +48,7 @@ case "$1" in
         git pull
         ( cd ./roles/xtoph_deploy; pwd ; git pull )
         ( cd ./xtoph-setup; pwd ; git pull )
+        ( cd ./hol-rhel10-showroom; pwd ; git pull )
         ;;
 
     *)
