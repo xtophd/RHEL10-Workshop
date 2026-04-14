@@ -22,21 +22,34 @@
     ##    if workshopuser_username is not defined
     ##
 
-    - name: "rhel10-prep : loading credentials"
+    - name: "rhel10-workshop: postdeployment-setup: loading credentials"
       include_vars:
         file: "../config/credentials.yml"
       when:
         - workshop_student_password is undefined
 
-    - name: "postdeployment-setup : create ssh directory"
+
+
+    - name: "rhel10-workshop: postdeployment-setup: create ssh directory"
       file:
         path: /root/.ssh
         mode: "0700"
         state: directory
 
-    
+    - name: "rhel10-workshop: postdeployment-setup: create ssh known_hosts file"
+      file:
+        path: /root/.ssh/known_hosts
+        owner: "root"
+        group: "root"
+        mode:  "0600"
+        state: touch
 
-    - name: "Only on {{ groups['myNodes'][0] }}"
+    ##
+    ##   The Workshop itself is cloned onto node1 (groups['myNodes'][0])
+    ##
+
+    
+    - name: "rhel10-workshop: postdeployment-setup: Only on {{ groups['myNodes'][0] }}"
       when: 
         - inventory_hostname == groups['myNodes'][0]
       block:
@@ -49,13 +62,13 @@
           command: "ssh-keygen -t rsa -b 2048 -N '' -f /root/.ssh/id_rsa"
           when: test_ssh_key.stat.exists == false
    
-    - name: "postdeployment-setup - fetch pub ssh keys from {{ groups['myNodes'][0] }}"
+    - name: "rhel10-workshop: postdeployment-setup: fetch pub ssh key from {{ groups['myNodes'][0] }}"
       delegate_to: "{{ groups['myNodes'][0] }}"
       ansible.builtin.shell:
         cmd: cat ~/.ssh/*.pub
       register: pubkeys_result
 
-    - name: "postdeployment-setup - store pub keys in file"
+    - name: "rhel10-workshop: postdeployment-setup: store pub keys in file"
       blockinfile:
         dest: "~/.ssh/authorized_keys"
         insertafter: EOF
@@ -103,7 +116,7 @@
 
     - name: "postdeployment-setup : install required packages"
       dnf: 
-        name: git
+        name: git,tmux
         state: installed
       register: result
       retries: 10
@@ -114,7 +127,7 @@
       ansible.builtin.git:
         repo: "https://github.com/xtophd/RHEL10-Workshop.git"
         dest: "/root/RHEL10-Workshop"
-        version: "main"
+        version: "summit-2026"
         clone: yes
   
     - name: "postdeployment-setup - create workshop-admin config file"
@@ -168,13 +181,9 @@
 #  - name: "postdeployment-setup - run the minimal (prep) workshop playbooks"
 #    ansible.builtin.shell:
 #      cmd: cd /root/RHEL10-Workshop; ./rhel10-workshop.sh prep
-#      
-#  - name: "postdeployment-setup - run the full (all) workshop playbooks in tmux detached shell"
-#    ansible.builtin.shell:
-#      cmd: cd /root/RHEL10-Workshop; ./sample-configs/gpte/workshop-setup-tmux.sh
-#
+      
+    - name: "postdeployment-setup - run the full (all) workshop playbooks in tmux detached shell"
+      ansible.builtin.shell:
+        cmd: cd /root/RHEL10-Workshop; ./sample-configs/gpte/workshop-setup-tmux.sh
 
-- hosts: myBastion
-  become: true
-  tasks:
 

@@ -20,13 +20,37 @@
             podman kill antora
           fi
 
+    - name: "rhel10-showroom: wait for running containers of antora to die and cleanup"
+      ansible.builtin.script: >
+        if $(podman ps --noheading | grep antora); then
+          echo "wait"
+        fi
+      register: antora_result
+      until: antora_result.stdout != "wait"
+      retries: 12
+      delay: 5
+
     - name: "rhel10-showroom: clone/update the showroom git repo"
       ansible.builtin.git:
-        repo: "http://github.com/rhpds/showroom-lb1136-rhel-10-hol"
+        repo: "https://github.com/rhpds/hol-rhel10-showroom"
         dest: "~root/rhel10-workshop-showroom"
-        version: "Summit-2026"
+        version: "development"
         clone: yes
         update: true
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     - name: "rhel10-showroom: run the showroom pod on port 8080"
       ansible.builtin.shell:
