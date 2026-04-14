@@ -10,3 +10,6 @@
 [submodule "hol-rhel10-showroom"]
 	path = hol-rhel10-showroom
 	url = https://github.com/rhpds/hol-rhel10-showroom/
+[submodule "roles/xtoph_bastion"]
+	path = roles/xtoph_bastion
+	url = https://github.com/xtophd/xtoph_bastion
