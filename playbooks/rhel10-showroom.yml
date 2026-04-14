@@ -16,15 +16,16 @@
     - name: "rhel10-showroom: kill any running containers of antora"
       ansible.builtin.shell:
         cmd: |
-          if $(podman ps --noheading | grep antora); then
+          if podman ps --noheading | grep antora; then
             podman kill antora
           fi
 
     - name: "rhel10-showroom: wait for running containers of antora to die and cleanup"
-      ansible.builtin.script: >
-        if $(podman ps --noheading | grep antora); then
-          echo "wait"
-        fi
+      ansible.builtin.shell:
+        cmd: |
+          if podman ps --noheading | grep antora; then
+            echo "wait"
+          fi
       register: antora_result
       until: antora_result.stdout != "wait"
       retries: 12
@@ -37,20 +38,6 @@
         version: "development"
         clone: yes
         update: true
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     - name: "rhel10-showroom: run the showroom pod on port 8080"
       ansible.builtin.shell:
