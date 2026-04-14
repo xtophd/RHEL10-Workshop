@@ -5,7 +5,7 @@
 
     - name: "rhel10-unit-lightspeed : dnf install packages"
       dnf: 
-        name:  command-line-assistant,httpd
+        name:  command-line-assistant,httpd,ed
         state: installed
       register: result
       retries: 10
