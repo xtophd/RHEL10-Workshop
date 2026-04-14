@@ -12,10 +12,24 @@
       until: result is succeeded
       delay: 5
       
-    - name: Disable rhel 9 supplementary repo.  No rhel 10 supp on demo.RH sat server, breaks leapp
-      ansible.builtin.shell: /sbin/subscription-manager repos --disable=rhel-9-for-x86_64-supplementary-rpms 2>/dev/null
+    ##
+    ##    NOTE: rhel 10 supplementary channels not available on demo.RH sat server
+    ##          This breaks the leapp upgrade process
+    ##
 
-    - name: "rhel10-unit-leapp : calculate required /boot disk constipation factor"
+    - name: "rhel10-unit-leapp : disable rhel 9 supplementary repo"
+      ansible.builtin.shell:
+        cmd: |
+          if subscription-manager repos --list | grep 'rhel-9-for-x86_64-supplementary-rpms'; then 
+            subscription-manager repos --disable=rhel-9-for-x86_64-supplementary-rpms
+          fi
+
+    - name: "rhel10-unit-leapp : remove bigfile if it exists"
+      ansible.builtin.shell:
+        cmd: |
+          if [[ -f /boot/bigfile ]]; then rm -f /boot/bigfile; fi
+
+    - name: "rhel10-unit-leapp : calculate required /boot/bigfile disk constipation factor"
       vars:
         target_percentage: 90
       ansible.builtin.shell:
@@ -29,7 +43,7 @@
       ansible.builtin.debug: 
         msg: "Calculus results reveal we need to add {{ disk_pressure.stdout }} 256k blocks of garbage"
 
-    - name: "rhel10-unit-leapp : create massive dump to act as Leapp Pre-Upgrade Inhibitor"
+    - name: "rhel10-unit-leapp : create big massive dump to act as Leapp Pre-Upgrade Inhibitor"
       when: disk_pressure.stdout|int > 0
       ansible.builtin.shell:
         cmd: |
