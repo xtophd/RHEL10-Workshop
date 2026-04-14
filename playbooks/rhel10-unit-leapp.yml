@@ -11,7 +11,10 @@
       retries: 10
       until: result is succeeded
       delay: 5
- 
+      
+    - name: Disable rhel 9 supplementary repo.  No rhel 10 supp on demo.RH sat server, breaks leapp
+      ansible.builtin.shell: /sbin/subscription-manager repos --disable=rhel-9-for-x86_64-supplementary-rpms 2>/dev/null
+
     - name: "rhel10-unit-leapp : calculate required /boot disk constipation factor"
       vars:
         target_percentage: 90
