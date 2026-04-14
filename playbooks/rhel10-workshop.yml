@@ -8,7 +8,7 @@
 
 
 #- import_playbook: bastion-dns.yml
-#  when: workshop_vars.bastion.configure_dnsmasq | default(False)
+#  when: workshop_vars.bastion.dns | default(False)
 #  tags: bastion
 
 - import_playbook: rhel10-prep.yml
