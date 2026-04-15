@@ -4,7 +4,7 @@
   tasks:
   
 
-    - name: "rhel10-unit-imagebuilder : workshop script installs"
+    - name: "rhel10-unit-imagemode : workshop script installs"
       ansible.builtin.template:
         src: "{{ item.src }}"
         dest: "{{ item.dest }}"
