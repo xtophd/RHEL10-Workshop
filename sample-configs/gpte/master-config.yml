@@ -85,7 +85,7 @@ all:
 
 
 
-    ansible_host: "{{ inventory_hostname }}.{{ workshop_vars.network_subdomain }}"
+#    ansible_host: "{{ inventory_hostname }}.{{ workshop_vars.network_subdomain }}"
 
 
 
